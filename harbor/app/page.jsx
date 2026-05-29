@@ -54,6 +54,29 @@ export default function HarborGlobalPartnerAcademy() {
   const [showVideo, setShowVideo] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState('Deutsch');
   const [registrationSent, setRegistrationSent] = useState(false);
+  const [form, setForm] = useState({
+  firstname: '',
+  lastname: '',
+  email: '',
+  phone: '',
+  discount_code: '',
+  city: ''
+});
+
+const updateForm = (field, value) => {
+  setForm(prev => ({ ...prev, [field]: value }));
+};
+
+const handleRegistration = async () => {
+  const { error } = await supabase.from('partners').insert([form]);
+
+  if (error) {
+    alert('Fehler: ' + error.message);
+    return;
+  }
+
+  setRegistrationSent(true);
+};
 
   const overallProgress = useMemo(() => Math.round(modules.reduce((sum, m) => sum + m.progress, 0) / modules.length), []);
 
@@ -152,7 +175,19 @@ export default function HarborGlobalPartnerAcademy() {
 function Shell({ children }) { return <div className="min-h-screen bg-[#080808] text-white overflow-hidden"><div className="fixed inset-0 bg-[radial-gradient(circle_at_top_right,rgba(212,175,55,0.18),transparent_35%),radial-gradient(circle_at_20%_20%,rgba(47,94,137,0.22),transparent_30%)]" /> <div className="relative">{children}</div></div>; }
 function Brand() { return <div className="flex items-center gap-3"><div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-yellow-300 to-yellow-700 flex items-center justify-center font-black text-black shadow-lg shadow-yellow-500/20">HG</div><div><h1 className="font-bold leading-tight">Harbor Global</h1><p className="text-xs text-white/55">Partner Academy</p></div></div>; }
 function Header({ soundOn, setSoundOn, selectedLanguage, setSelectedLanguage }) { return <header className="flex flex-col xl:flex-row xl:items-center justify-between gap-4"><div><motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-yellow-300 text-sm font-semibold tracking-[0.25em] uppercase">Premium Partner System</motion.p><motion.h2 initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="text-3xl md:text-5xl font-black mt-2">Willkommen, Leonid</motion.h2><p className="text-white/55 mt-2">Ein Link. Ein System. Jeder Partner wird professionell eingearbeitet.</p></div><div className="flex flex-wrap items-center gap-3"><Select label="" options={languages} value={selectedLanguage} onChange={setSelectedLanguage} small /><Button onClick={() => setSoundOn(!soundOn)} className="rounded-2xl bg-white/10 hover:bg-white/15 border border-white/10 px-4 py-3">{soundOn ? <Volume2 size={18}/> : <Music2 size={18}/>} {soundOn ? 'Sound an' : 'Sound aus'}</Button></div></header>; }
-function Input({ label, password }) { return <label className="block"><span className="text-xs text-white/50 mb-1 block">{label}</span><input type={password ? 'password' : 'text'} className="w-full rounded-2xl bg-black/30 border border-white/10 px-4 py-3 outline-none focus:border-yellow-300/70" /></label>; }
+function Input({ label, password, value, onChange }) {
+  return (
+    <label className="block">
+      <span className="text-xs text-white/50 mb-1 block">{label}</span>
+      <input
+        type={password ? "password" : "text"}
+        value={value}
+        onChange={onChange}
+        className="w-full rounded-2xl bg-black/30 border border-white/15 px-4 py-3 text-white outline-none"
+      />
+    </label>
+  );
+}
 function Select({ label, options, value, onChange, small }) { return <label className={small ? '' : 'block'}>{label && <span className="text-xs text-white/50 mb-1 block">{label}</span>}<select value={value} onChange={(e)=>onChange(e.target.value)} className="rounded-2xl bg-black/60 border border-white/10 px-4 py-3 outline-none focus:border-yellow-300/70"><option>{value}</option>{options.filter(o=>o!==value).map(o=><option key={o}>{o}</option>)}</select></label>; }
 function UploadBox({ label }) {
   const [fileName, setFileName] = useState('');
