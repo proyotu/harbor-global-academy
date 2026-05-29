@@ -1,0 +1,4 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+*{box-sizing:border-box} body{margin:0;background:#080808;color:white} input,select{color:white} option{background:#111;color:white}
