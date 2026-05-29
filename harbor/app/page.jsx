@@ -106,13 +106,17 @@ const handleRegistration = async () => {
                       <div className="h-12 w-12 rounded-2xl bg-yellow-400 text-black flex items-center justify-center font-black">HG</div>
                     </div>
                     <div className="grid md:grid-cols-2 gap-3">
-                      <Input label="Vorname" /><Input label="Nachname" /><Input label="E-Mail" /><Input label="WhatsApp / Telefon" />
-                      <Input label="Persönlicher Rabattcode" /><Input label="Land / Stadt" />
+                     <Input label="Vorname" value={form.firstname} onChange={(e) => updateForm('firstname', e.target.value)} />
+<Input label="Nachname" value={form.lastname} onChange={(e) => updateForm('lastname', e.target.value)} />
+<Input label="E-Mail" value={form.email} onChange={(e) => updateForm('email', e.target.value)} />
+<Input label="WhatsApp / Telefon" value={form.phone} onChange={(e) => updateForm('phone', e.target.value)} />
+<Input label="Persönlicher Rabattcode" value={form.discount_code} onChange={(e) => updateForm('discount_code', e.target.value)} />
+<Input label="Land / Stadt" value={form.city} onChange={(e) => updateForm('city', e.target.value)} />
                       <Select label="Sprache" options={languages} value={selectedLanguage} onChange={setSelectedLanguage} />
                       <UploadBox label="Profilfoto hochladen" />
                       <Input label="Passwort" password /><Input label="Passwort wiederholen" password />
                     </div>
-                    <Button onClick={() => setRegistrationSent(true)} className="w-full mt-6 rounded-2xl bg-yellow-400 text-black hover:bg-yellow-300 font-bold h-12">Registrierung senden</Button>
+                    <Button onClick={handleRegistration} className="w-full mt-6 rounded-2xl bg-yellow-400 text-black hover:bg-yellow-300 font-bold h-12">Registrierung senden</Button>
                     <div className="mt-4 rounded-2xl bg-black/30 border border-yellow-400/20 p-4 text-sm text-white/60">Nach der Registrierung ist der Zugang gesperrt, bis der Admin den Partner freischaltet. Das Dashboard ist vorher nicht sichtbar.</div>
                   </>
                 ) : (
