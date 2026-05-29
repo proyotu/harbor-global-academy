@@ -150,15 +150,21 @@ function Header({ soundOn, setSoundOn, selectedLanguage, setSelectedLanguage }) 
 function Input({ label, password }) { return <label className="block"><span className="text-xs text-white/50 mb-1 block">{label}</span><input type={password ? 'password' : 'text'} className="w-full rounded-2xl bg-black/30 border border-white/10 px-4 py-3 outline-none focus:border-yellow-300/70" /></label>; }
 function Select({ label, options, value, onChange, small }) { return <label className={small ? '' : 'block'}>{label && <span className="text-xs text-white/50 mb-1 block">{label}</span>}<select value={value} onChange={(e)=>onChange(e.target.value)} className="rounded-2xl bg-black/60 border border-white/10 px-4 py-3 outline-none focus:border-yellow-300/70"><option>{value}</option>{options.filter(o=>o!==value).map(o=><option key={o}>{o}</option>)}</select></label>; }
 function UploadBox({ label }) {
+  const [fileName, setFileName] = useState('');
+
   return (
     <label className="rounded-2xl bg-black/30 border border-dashed border-white/15 px-4 py-3 flex items-center gap-2 text-white/60 cursor-pointer">
       <ImagePlus size={18}/>
-      {label}
+      {fileName || label}
 
       <input
         type="file"
         accept="image/*"
         className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) setFileName(file.name);
+        }}
       />
     </label>
   )
