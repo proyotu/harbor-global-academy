@@ -9,6 +9,11 @@ import {
   Volume2, X
 } from 'lucide-react';
 import { Card, CardContent, Button } from '../components/ui';
+import { createClient } from '@supabase/supabase-js';
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+);
 
 const languages = ['Deutsch', 'English', 'Русский', 'Română', 'Türkçe', 'Ελληνικά', 'Čeština'];
 
