@@ -5,14 +5,13 @@
     "start": "next start"
   },
   "dependencies": {
-    "@tailwindcss/postcss": "latest",
-    "autoprefixer": "latest",
-    "lucide-react": "latest",
-    "next": "latest",
-    "postcss": "latest",
-    "react": "latest",
-    "react-dom": "latest",
-    "tailwindcss": "latest"
-  },
-  "devDependencies": {}
+    "@tailwindcss/postcss": "^4.1.0",
+    "autoprefixer": "^10.4.20",
+    "lucide-react": "^0.525.0",
+    "next": "^15.3.3",
+    "postcss": "^8.5.6",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "tailwindcss": "^4.1.0"
+  }
 }
