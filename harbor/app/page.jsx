@@ -149,7 +149,20 @@ function Brand() { return <div className="flex items-center gap-3"><div classNam
 function Header({ soundOn, setSoundOn, selectedLanguage, setSelectedLanguage }) { return <header className="flex flex-col xl:flex-row xl:items-center justify-between gap-4"><div><motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-yellow-300 text-sm font-semibold tracking-[0.25em] uppercase">Premium Partner System</motion.p><motion.h2 initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="text-3xl md:text-5xl font-black mt-2">Willkommen, Leonid</motion.h2><p className="text-white/55 mt-2">Ein Link. Ein System. Jeder Partner wird professionell eingearbeitet.</p></div><div className="flex flex-wrap items-center gap-3"><Select label="" options={languages} value={selectedLanguage} onChange={setSelectedLanguage} small /><Button onClick={() => setSoundOn(!soundOn)} className="rounded-2xl bg-white/10 hover:bg-white/15 border border-white/10 px-4 py-3">{soundOn ? <Volume2 size={18}/> : <Music2 size={18}/>} {soundOn ? 'Sound an' : 'Sound aus'}</Button></div></header>; }
 function Input({ label, password }) { return <label className="block"><span className="text-xs text-white/50 mb-1 block">{label}</span><input type={password ? 'password' : 'text'} className="w-full rounded-2xl bg-black/30 border border-white/10 px-4 py-3 outline-none focus:border-yellow-300/70" /></label>; }
 function Select({ label, options, value, onChange, small }) { return <label className={small ? '' : 'block'}>{label && <span className="text-xs text-white/50 mb-1 block">{label}</span>}<select value={value} onChange={(e)=>onChange(e.target.value)} className="rounded-2xl bg-black/60 border border-white/10 px-4 py-3 outline-none focus:border-yellow-300/70"><option>{value}</option>{options.filter(o=>o!==value).map(o=><option key={o}>{o}</option>)}</select></label>; }
-function UploadBox({ label }) { return <div className="rounded-2xl bg-black/30 border border-dashed border-white/15 px-4 py-3 flex items-center gap-2 text-white/60"><ImagePlus size={18}/>{label}</div>; }
+function UploadBox({ label }) {
+  return (
+    <label className="rounded-2xl bg-black/30 border border-dashed border-white/15 px-4 py-3 flex items-center gap-2 text-white/60 cursor-pointer">
+      <ImagePlus size={18}/>
+      {label}
+
+      <input
+        type="file"
+        accept="image/*"
+        className="hidden"
+      />
+    </label>
+  )
+}
 function MiniFeature({ icon: Icon, title, text }) { return <div className="rounded-3xl bg-white/10 border border-white/10 p-4"><Icon className="text-yellow-300 mb-3" size={22}/><p className="font-bold">{title}</p><p className="text-xs text-white/50 mt-1">{text}</p></div>; }
 function Stat({ icon: Icon, label, value }) { return <div className="rounded-3xl bg-black/25 border border-white/10 p-4"><Icon size={20} className="text-yellow-300 mb-3"/><p className="text-xs text-white/50">{label}</p><p className="font-bold mt-1">{value}</p></div>; }
 function ActionCard({ icon: Icon, title, text, button }) { return <Card className="rounded-[2rem] border border-white/10 bg-white/[0.06] backdrop-blur-xl text-white"><CardContent className="p-6"><div className="flex items-center gap-3 mb-4"><Icon className="text-yellow-300"/> <h3 className="font-bold text-xl">{title}</h3></div><p className="text-white/65">{text}</p><Button className="w-full mt-5 rounded-2xl bg-yellow-400 text-black hover:bg-yellow-300 font-bold py-3">{button}</Button></CardContent></Card>; }
