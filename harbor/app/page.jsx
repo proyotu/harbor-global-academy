@@ -66,6 +66,25 @@ export default function HarborGlobalPartnerAcademy() {
 const updateForm = (field, value) => {
   setForm(prev => ({ ...prev, [field]: value }));
 };
+  const handleLogin = async () => {
+  const { data, error } = await supabase
+    .from('partners')
+    .select('*')
+    .eq('email', form.email)
+    .single();
+
+  if (error || !data) {
+    alert('Partner nicht gefunden');
+    return;
+  }
+
+  if (data.status !== 'approved') {
+    alert('Dein Konto wartet noch auf Freigabe');
+    return;
+  }
+
+  setView('dashboard');
+};
 
 const handleRegistration = async () => {
   const { error } = await supabase.from('partners').insert([form]);
@@ -117,6 +136,9 @@ const handleRegistration = async () => {
                       <Input label="Passwort" password /><Input label="Passwort wiederholen" password />
                     </div>
                     <Button onClick={handleRegistration} className="w-full mt-6 rounded-2xl bg-yellow-400 text-black hover:bg-yellow-300 font-bold h-12">Registrierung senden</Button>
+                    <Button onClick={handleLogin} className="w-full mt-3 rounded-2xl bg-black/30 border border-yellow-400/40 text-yellow-300 hover:bg-yellow-400/10 font-bold h-12">
+  Zugang prüfen / Einloggen
+</Button>
                     <div className="mt-4 rounded-2xl bg-black/30 border border-yellow-400/20 p-4 text-sm text-white/60">Nach der Registrierung ist der Zugang gesperrt, bis der Admin den Partner freischaltet. Das Dashboard ist vorher nicht sichtbar.</div>
                   </>
                 ) : (
