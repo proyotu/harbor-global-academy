@@ -1,0 +1,5 @@
+
+> transcribe:videos
+> node scripts/transcribe-academy-videos.mjs
+
+transcribe allgemeine-ernaehrungsweise

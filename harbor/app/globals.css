@@ -1,13 +1,36 @@
-@import "tailwindcss";
-
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 * {
   box-sizing: border-box;
 }
 
+html,
 body {
   margin: 0;
+  max-width: 100%;
+  overflow-x: hidden;
   background: #080808;
   color: white;
+}
+
+body {
+  overflow-wrap: break-word;
+}
+
+img,
+video,
+iframe,
+canvas {
+  max-width: 100%;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  max-width: 100%;
 }
 
 input,
@@ -18,4 +41,18 @@ select {
 option {
   background: #111;
   color: white;
+}
+
+@media (max-width: 640px) {
+  h1,
+  h2,
+  h3,
+  p,
+  span,
+  a,
+  button,
+  label,
+  div {
+    overflow-wrap: anywhere;
+  }
 }
