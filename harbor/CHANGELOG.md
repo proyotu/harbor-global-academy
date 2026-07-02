@@ -1,5 +1,173 @@
 # Changelog
 
+## Partner Earnings Engine & Campaign Architecture Extension - 2026-07-02
+
+### Analyse
+
+- Bestehende Campaign-Center-Struktur geprüft:
+  - `components/campaign-center.jsx`
+  - `docs/CAMPAIGN_CENTER_BLUEPRINT.md`
+- Anforderungen für Provisions-, Punkte-, Level- und Aktionsberechnung geprüft.
+- Offizielle Preise, Provisionen, Produktpunkte und Levelgrenzen sind aktuell nicht maschinenlesbar im Projekt vorhanden.
+- Deshalb wurden keine echten Preise, Provisionen, Punkte oder Levelgrenzen hardcodiert.
+
+### Umgesetzt
+
+- Neue modulare Partner Earnings Engine als UI- und Architekturvorbereitung ergänzt.
+- Generische Berechnungshelfer vorbereitet:
+  - Provisionen
+  - Produktpunkte
+  - Level-Fortschritt
+- Partneransicht vorbereitet:
+  - Produktkontext
+  - Partnerlevel
+  - normale Provision als Quellenstatus
+  - Aktionsprovision als Quellenstatus
+  - Punkte- und Level-Fortschritt als Quellenstatus
+  - Countdown-/Aktionszeitraum-Hinweis
+- Leaderansicht vorbereitet:
+  - Team-Punkteübersicht
+  - Partner kurz vor Levelwechsel
+  - Partner mit hohem Potenzial
+  - attraktive Aktionsprodukte
+- Adminansicht vorbereitet:
+  - Provisionskonfiguration als UI
+  - Punkte-/Level-Konfiguration als UI
+  - Kampagnenregel-Konfiguration als UI
+  - keine Speicherung
+- Campaign-Center-Blueprint um Partner-Earnings-, Provisions-, Punkte- und Leveltabellen erweitert.
+- Neue Dokumentation `docs/PARTNER_EARNINGS_ENGINE.md` erstellt.
+
+### Neue Komponenten / Helper
+
+- `components/partner-earnings-engine.jsx`
+  - `PartnerEarningsEnginePanel`
+  - `calculateCommissionPreview`
+  - `calculatePointsPreview`
+  - `calculateLevelProgressPreview`
+
+### Geänderte Dateien
+
+- `components/campaign-center.jsx`
+- `components/partner-earnings-engine.jsx`
+- `docs/CAMPAIGN_CENTER_BLUEPRINT.md`
+- `docs/PARTNER_EARNINGS_ENGINE.md`
+- `CHANGELOG.md`
+
+### Bewusst nicht geändert
+
+- Keine Login-Änderungen.
+- Keine Registrierungsänderungen.
+- Keine Auth-Änderungen.
+- Keine API-Änderungen.
+- Keine Datenbankänderungen.
+- Keine Supabase-Änderungen.
+- Keine R2-/Storage-Änderungen.
+- Keine Infrastrukturänderungen.
+- Keine produktiven Schreibvorgänge.
+- Keine Änderungen an Partnerdaten.
+- Keine echten Produktivpreise.
+- Keine echten Provisionen.
+- Keine echten Produktpunkte.
+- Keine echten Levelgrenzen.
+- Keine Backoffice-Integration.
+- Keine neuen Libraries.
+
+### Tests
+
+- `npm run lint`: bestanden; Hinweis: Babel deoptimiert weiterhin die Ausgabe von `app/page.jsx` wegen Dateigröße, kein Fehler.
+- `npm run build`: bestanden.
+
+## Campaign Center & Aktionsbanner UI - 2026-07-02
+
+### Analyse
+
+- Bestehende Blueprint-Dokumente gelesen und berücksichtigt:
+  - `docs/TASK_ENGINE_BLUEPRINT.md`
+  - `docs/NOTIFICATION_ENGINE_BLUEPRINT.md`
+  - `docs/CMS_BACKEND_BLUEPRINT.md`
+- Bestehende UI-Struktur geprüft:
+  - `app/page.jsx`
+  - `components/success-center.jsx`
+  - `components/growth-center.jsx`
+- Aktuelle Preisquellen sind nicht maschinenlesbar genug für echte Aktionspreisberechnung.
+- Deshalb werden keine Produktivpreise hardcodiert und keine Fantasiepreise angezeigt.
+
+### Umgesetzt
+
+- Neues UI-only Campaign Center ergänzt.
+- Neues Aktionsbanner im geschützten Dashboard ergänzt.
+- Neue Navigation `Aktionen` ergänzt.
+- Partneransicht vorbereitet:
+  - aktive Aktionen
+  - Kundenaktion als Verkaufsargument
+  - interne Partneraktion
+  - Level-Hinweis
+  - Aktionspreis-Berechnung vorbereitet
+- Leaderansicht vorbereitet:
+  - Team-Hinweise
+  - attraktive Produkte
+  - Verkaufsargumente
+  - Teamaktions-Aufgaben als UI
+- Adminansicht vorbereitet:
+  - Kampagnenverwaltung als UI
+  - Aktion erstellen/bearbeiten/planen/archivieren als deaktivierte UI-Aktionen
+  - Zielgruppen- und Notification-Vorbereitung
+  - Level-Preis-Matrix ohne echte Preise
+- Success Center um aktiven Kampagnenhinweis ergänzt.
+- Growth Center um Kampagnenmaterial-Bereich ergänzt.
+- Automatische Aktionspreislogik vorbereitet:
+  - fester Betrag
+  - prozentualer Rabatt
+  - kombinierte Aktion
+  - keine Berechnung ohne echte Preisquelle
+- Neue Dokumentation `docs/CAMPAIGN_CENTER_BLUEPRINT.md` erstellt.
+
+### Neue Komponenten / Helper
+
+- `components/campaign-center.jsx`
+  - `CampaignDashboardBanner`
+  - `CampaignCenterSection`
+  - `CampaignSuccessHint`
+  - `CampaignGrowthPanel`
+  - `CustomerCampaignPanel`
+  - `PartnerCampaignPanel`
+  - `LevelPricingTable`
+  - `PartnerSavingsBadge`
+  - `ProductPromotionCard`
+
+### Geänderte Dateien
+
+- `app/page.jsx`
+- `components/campaign-center.jsx`
+- `components/success-center.jsx`
+- `components/growth-center.jsx`
+- `docs/CAMPAIGN_CENTER_BLUEPRINT.md`
+- `CHANGELOG.md`
+
+### Bewusst nicht geändert
+
+- Keine Login-Änderungen.
+- Keine Registrierungsänderungen.
+- Keine Auth-Änderungen.
+- Keine API-Änderungen.
+- Keine Datenbankänderungen.
+- Keine Supabase-Änderungen.
+- Keine R2-/Storage-Änderungen.
+- Keine Infrastrukturänderungen.
+- Keine produktiven Schreibvorgänge.
+- Keine Änderungen an Partnerdaten.
+- Keine Änderungen an Progress, Quiz oder Zertifikaten.
+- Keine echten Notifications.
+- Keine echten Produktivpreise.
+- Keine Backoffice-Integration.
+- Keine neuen Libraries.
+
+### Tests
+
+- `npm run lint`: bestanden; Hinweis: Babel deoptimiert weiterhin die Ausgabe von `app/page.jsx` wegen Dateigröße, kein Fehler.
+- `npm run build`: bestanden.
+
 ## Academy Production Studio Blueprint - 2026-07-01
 
 ### Dokumentiert

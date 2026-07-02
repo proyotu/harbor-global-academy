@@ -24,6 +24,7 @@ import {
   Users,
 } from 'lucide-react';
 import { Button } from './ui';
+import { CampaignGrowthPanel } from './campaign-center';
 
 export const growthCenterCategories = [
   { id: 'marketing', title: 'Marketing', text: 'Kampagnen, Flyer, Vorlagen und Werbematerial für sichtbare Kundenkommunikation.', icon: Globe2 },
@@ -389,6 +390,7 @@ export function GrowthCenterSection({ partner, academyUpdates = [], onNavigate, 
           </section>
 
           <section className="space-y-5">
+            <CampaignGrowthPanel Panel={Panel} />
             {growthHubSections.map((section) => (
               <GrowthHubPanel key={section.id} section={section} Panel={Panel} />
             ))}

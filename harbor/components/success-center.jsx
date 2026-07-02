@@ -21,6 +21,7 @@ import {
   Video,
 } from 'lucide-react';
 import { Button } from './ui';
+import { CampaignSuccessHint } from './campaign-center';
 
 const successStatusMeta = {
   open: { label: 'Offen', className: 'border-yellow-300/25 bg-yellow-400/10 text-yellow-100' },
@@ -646,6 +647,8 @@ export function SuccessCenterSection({ partner, academyUpdates = [], localOnboar
           <SuccessOverviewCard key={card.id} card={card} onNavigate={onNavigate} />
         ))}
       </section>
+
+      <CampaignSuccessHint partner={partner} isAdmin={isAdmin} isLeader={isLeader} onNavigate={onNavigate} />
 
       <section className="grid gap-5 xl:grid-cols-[1.1fr_0.9fr]">
         <Panel title="Aufgabenbereich" icon={CheckCircle2}>

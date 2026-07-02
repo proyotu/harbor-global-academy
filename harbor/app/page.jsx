@@ -65,6 +65,10 @@ import {
   growthHubSections,
 } from '../components/growth-center';
 import { SuccessCenterSection as SuccessCenterSectionView } from '../components/success-center';
+import {
+  CampaignCenterSection as CampaignCenterSectionView,
+  CampaignDashboardBanner,
+} from '../components/campaign-center';
 import AcademyContentAdminOverview from './components/AcademyContentAdminOverview';
 import AcademyDownloadCenter from './components/AcademyDownloadCenter';
 import AcademyLessonNavigation from './components/AcademyLessonNavigation';
@@ -4407,6 +4411,7 @@ const dashboardNavItems = [
   { id: 'dashboard', labelKey: 'dashboard', icon: ShieldCheck },
   { id: 'success', label: 'Success Center', icon: Target },
   { id: 'growth', label: 'Growth Center', icon: Flame },
+  { id: 'campaigns', label: 'Aktionen', icon: Flame },
   { id: 'career', labelKey: 'career', icon: Trophy },
   { id: 'gamification', label: 'Punkte', icon: Trophy },
   { id: 'leader', label: 'Teamsteuerung', icon: Users },
@@ -7236,6 +7241,13 @@ export default function HarborGlobalPartnerAcademy() {
 
           <MobileDashboardNav items={visibleNavItems} activeSection={dashboardSection} setDashboardSection={handleDashboardSectionChange} copy={copy} badges={navBadges} />
 
+          <CampaignDashboardBanner
+            partner={currentPartner}
+            isAdmin={isAdmin}
+            isLeader={canViewLeaderAnalytics}
+            onNavigate={handleDashboardSectionChange}
+          />
+
           {dashboardSection === 'start' && (
             <StartCenterSection
               partner={currentPartner}
@@ -7284,6 +7296,15 @@ export default function HarborGlobalPartnerAcademy() {
             <GrowthCenterSection
               partner={currentPartner}
               academyUpdates={academyUpdates}
+              onNavigate={handleDashboardSectionChange}
+              isAdmin={isAdmin}
+              isLeader={canViewLeaderAnalytics}
+            />
+          )}
+
+          {dashboardSection === 'campaigns' && (
+            <CampaignCenterSection
+              partner={currentPartner}
               onNavigate={handleDashboardSectionChange}
               isAdmin={isAdmin}
               isLeader={canViewLeaderAnalytics}
@@ -13885,6 +13906,22 @@ function GrowthCenterSection({ partner, academyUpdates = [], onNavigate, isAdmin
         getOnboardingAssistantSummary,
         buildNotificationCenterItems,
         formatAdminDate,
+      }}
+    />
+  );
+}
+
+function CampaignCenterSection({ partner, onNavigate, isAdmin = false, isLeader = false }) {
+  return (
+    <CampaignCenterSectionView
+      partner={partner}
+      onNavigate={onNavigate}
+      isAdmin={isAdmin}
+      isLeader={isLeader}
+      dependencies={{
+        Panel,
+        Stat,
+        NotificationEmptyState,
       }}
     />
   );
