@@ -17,6 +17,7 @@ import {
   TrendingUp,
   Users,
 } from 'lucide-react';
+import { createI18nTranslator } from './i18n-extension';
 
 const sourceDocuments = ['Karriereplan', 'Provisionsplan', 'Partnerpreisliste', 'Aktionsregeln'];
 
@@ -291,7 +292,7 @@ function CampaignCountdownPanel({ campaign }) {
   );
 }
 
-function PartnerCommissionPreview({ campaign, partnerLevel }) {
+function PartnerCommissionPreview({ campaign, partnerLevel, t }) {
   const productName = campaign?.partnerCampaign?.affectedProduct || campaign?.products?.[0] || 'Produkt aus Kampagne';
   const normalPreview = calculateCommissionPreview();
   const pointsPreview = calculatePointsPreview();
@@ -302,9 +303,9 @@ function PartnerCommissionPreview({ campaign, partnerLevel }) {
       <div className="rounded-[1.5rem] border border-white/10 bg-black/25 p-4">
         <div className="flex flex-wrap items-center gap-2">
           <Calculator size={18} className="text-yellow-200" />
-          <SourceBadge>Keine echten Werte im Code</SourceBadge>
+          <SourceBadge>{t('noRealValuesInCode')}</SourceBadge>
         </div>
-        <h3 className="mt-3 text-2xl font-black text-yellow-50">Was verdiene ich?</h3>
+        <h3 className="mt-3 text-2xl font-black text-yellow-50">{t('earningsQuestion')}</h3>
         <p className="mt-2 text-sm leading-relaxed text-white/58">
           Die Antwortlogik ist vorbereitet, berechnet aber erst dann Beträge, wenn offizielle Provisions- und Preisquellen maschinenlesbar freigegeben sind.
         </p>
@@ -342,15 +343,15 @@ function PartnerCommissionPreview({ campaign, partnerLevel }) {
   );
 }
 
-function PointsAndLevelPanel() {
+function PointsAndLevelPanel({ t }) {
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_0.9fr]">
       <div className="rounded-[1.5rem] border border-white/10 bg-black/25 p-4">
         <div className="flex flex-wrap items-center gap-2">
           <BarChart3 size={18} className="text-yellow-200" />
-          <SourceBadge>Punkte-Engine vorbereitet</SourceBadge>
+          <SourceBadge>{t('earningsPoints')}</SourceBadge>
         </div>
-        <h3 className="mt-3 text-xl font-black text-yellow-50">Punkte und Level-Fortschritt</h3>
+        <h3 className="mt-3 text-xl font-black text-yellow-50">{t('earningsPoints')}</h3>
         <p className="mt-2 text-sm leading-relaxed text-white/58">
           Später erkennt die Engine Produkt, Menge, Produktpunkte, Kampagnenpunkte, aktuellen Punktestand und nächstes Ziellevel. Ohne offizielle Punktetabellen wird aktuell nichts berechnet.
         </p>
@@ -477,7 +478,8 @@ function CommissionComponentsPanel() {
   );
 }
 
-export function PartnerEarningsEnginePanel({ campaign, partner, isAdmin = false, isLeader = false, Panel }) {
+export function PartnerEarningsEnginePanel({ campaign, partner, isAdmin = false, isLeader = false, Panel, t: providedT, language, copy }) {
+  const t = providedT || createI18nTranslator(language, copy);
   const partnerLevel = resolvePartnerLevel(partner);
 
   if (!Panel) {
@@ -486,50 +488,50 @@ export function PartnerEarningsEnginePanel({ campaign, partner, isAdmin = false,
 
   return (
     <>
-      <Panel title="Partner Earnings Engine" icon={Calculator}>
+      <Panel title={t('earningsTitle')} icon={Calculator}>
         <div className="space-y-4">
           <div className="rounded-[1.5rem] border border-yellow-300/20 bg-yellow-400/10 p-4">
             <div className="flex flex-wrap items-center gap-2">
-              <SourceBadge>Provisions- und Aktionsrechner</SourceBadge>
-              <SourceBadge>UI-only</SourceBadge>
-              <SourceBadge>Keine Fantasiewerte</SourceBadge>
+              <SourceBadge>{t('earningsCalculator', 'Provisions- und Aktionsrechner')}</SourceBadge>
+              <SourceBadge>{t('uiOnly')}</SourceBadge>
+              <SourceBadge>{t('noFakeValues')}</SourceBadge>
             </div>
-            <h3 className="mt-3 text-2xl font-black text-yellow-50">Provisionen, Punkte und Level-Fortschritt sicher vorbereitet</h3>
+            <h3 className="mt-3 text-2xl font-black text-yellow-50">{t('earningsHeroTitle')}</h3>
             <p className="mt-2 text-sm leading-relaxed text-white/62">
-              Die Engine erkennt später Produkt, Partnerlevel, Kampagne, Provisionsregel, Punkte und Levelgrenzen. Aktuell werden keine echten Provisionen, Preise oder Punkte im Code hinterlegt.
+              {t('earningsHeroText')}
             </p>
           </div>
 
-          <PartnerCommissionPreview campaign={campaign} partnerLevel={partnerLevel} />
+          <PartnerCommissionPreview campaign={campaign} partnerLevel={partnerLevel} t={t} />
           <CampaignCountdownPanel campaign={campaign} />
         </div>
       </Panel>
 
-      <Panel title="Offizielle Berechnungsquellen" icon={FileText}>
+      <Panel title={t('earningsSources')} icon={FileText}>
         <SourceDocumentsPanel />
       </Panel>
 
-      <Panel title="Provisionslogik vorbereitet" icon={Coins}>
+      <Panel title={t('earningsCommission')} icon={Coins}>
         <CommissionComponentsPanel />
       </Panel>
 
-      <Panel title="Punkte- und Level-Fortschritt" icon={BarChart3}>
-        <PointsAndLevelPanel />
+      <Panel title={t('earningsPoints')} icon={BarChart3}>
+        <PointsAndLevelPanel t={t} />
       </Panel>
 
       {isLeader && !isAdmin && (
-        <Panel title="Leader Earnings Übersicht" icon={Users}>
+        <Panel title={t('earningsLeaderOverview')} icon={Users}>
           <LeaderEarningsPanel />
         </Panel>
       )}
 
       {isAdmin && (
-        <Panel title="Admin Earnings Konfiguration" icon={ShieldCheck}>
+        <Panel title={t('earningsAdminConfig')} icon={ShieldCheck}>
           <AdminEarningsConfigurationPanel />
         </Panel>
       )}
 
-      <Panel title="Benachrichtigungen und Sicherheit" icon={Bell}>
+      <Panel title={t('earningsSecurity')} icon={Bell}>
         <NotificationAndSecurityPanel />
       </Panel>
 

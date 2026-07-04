@@ -25,6 +25,8 @@ import {
 } from 'lucide-react';
 import { Button } from './ui';
 import { CampaignGrowthPanel } from './campaign-center';
+import { createI18nTranslator } from './i18n-extension';
+import { MediaGrowthPanel } from './media-center';
 
 export const growthCenterCategories = [
   { id: 'marketing', title: 'Marketing', text: 'Kampagnen, Flyer, Vorlagen und Werbematerial für sichtbare Kundenkommunikation.', icon: Globe2 },
@@ -85,6 +87,19 @@ const leaderGrowthItems = [
   { id: 'strategy', title: 'Teamstrategie', text: 'Strategische Teamplanung als spätere Erweiterung vorbereitet.', icon: Target },
 ];
 
+const growthCategoryTranslationKeys = {
+  marketing: ['growthMarketingTitle', 'growthMarketingText'],
+  sales: ['growthSalesTitle', 'growthSalesText'],
+  recruiting: ['mediaRecruitingTitle', 'growthRecruitingText'],
+  social: ['mediaFilterSocial', 'growthSocialText'],
+  'ai-tools': ['growthAiTitle', 'growthAiText'],
+  campaigns: ['mediaCampaignsTitle', 'growthCampaignsText'],
+  products: ['growthProductsTitle', 'growthProductsText'],
+  downloads: ['resources', 'growthDownloadsText'],
+  'live-training': ['growthLiveTrainingTitle', 'growthLiveTrainingText'],
+  stories: ['growthStoriesTitle', 'growthStoriesText'],
+};
+
 export function getGrowthCenterReadiness(partner, dependencies) {
   const {
     getPartnerAcademySummary,
@@ -108,8 +123,11 @@ export function getGrowthCenterReadiness(partner, dependencies) {
   };
 }
 
-export function GrowthCategoryCard({ category, locked = false }) {
+export function GrowthCategoryCard({ category, locked = false, t = (key, fallback) => fallback || key }) {
   const Icon = category.icon;
+  const [titleKey, textKey] = growthCategoryTranslationKeys[category.id] || [];
+  const title = t(titleKey, category.title);
+  const text = t(textKey, category.text);
 
   return (
     <div className={`rounded-[1.6rem] border p-4 text-white shadow-lg shadow-black/20 transition sm:p-5 ${locked ? 'border-white/10 bg-white/[0.035] opacity-75' : 'border-white/10 bg-white/[0.055] hover:-translate-y-0.5 hover:border-yellow-300/30 hover:bg-yellow-400/[0.08]'}`}>
@@ -118,11 +136,11 @@ export function GrowthCategoryCard({ category, locked = false }) {
           <Icon size={20} />
         </span>
         <span className={`rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.12em] ${locked ? 'bg-white/10 text-white/45' : 'bg-yellow-400/10 text-yellow-100 ring-1 ring-yellow-200/20'}`}>
-          {locked ? 'Nach Abschluss' : 'Bereit'}
+          {locked ? t('afterCompletion', 'Nach Abschluss') : t('ready', 'Bereit')}
         </span>
       </div>
-      <h3 className="mt-4 break-words text-lg font-black text-yellow-50">{category.title}</h3>
-      <p className="mt-2 break-words text-sm leading-relaxed text-white/58">{category.text}</p>
+      <h3 className="mt-4 break-words text-lg font-black text-yellow-50">{title}</h3>
+      <p className="mt-2 break-words text-sm leading-relaxed text-white/58">{text}</p>
     </div>
   );
 }
@@ -255,6 +273,7 @@ export function GrowthCenterSection({ partner, academyUpdates = [], onNavigate, 
     buildNotificationCenterItems,
     formatAdminDate,
   } = dependencies;
+  const t = dependencies.t || createI18nTranslator(dependencies.language, dependencies.copy);
   const readiness = getGrowthCenterReadiness(partner, dependencies);
   const hasPreviewAccess = readiness.hasAccess || isAdmin;
   const latestUpdates = buildNotificationCenterItems({ updates: academyUpdates, isAdmin, isLeader }).slice(0, 3);
@@ -262,7 +281,7 @@ export function GrowthCenterSection({ partner, academyUpdates = [], onNavigate, 
   const dashboardCards = [
     {
       id: 'new-content',
-      label: 'Neue Inhalte',
+      label: t('successNewContent'),
       title: latestUpdates.length ? `${latestUpdates.length} sichtbare Meldung(en)` : 'Keine neuen Inhalte',
       text: latestUpdates[0]?.title || 'Sobald neue Growth-Inhalte gepflegt werden, erscheinen sie hier.',
       value: latestUpdates.length,
@@ -270,7 +289,7 @@ export function GrowthCenterSection({ partner, academyUpdates = [], onNavigate, 
     },
     {
       id: 'recommended',
-      label: 'Empfohlen für dich',
+      label: t('growthRecommended'),
       title: readiness.progress >= 100 ? 'Marketing Hub starten' : 'Academy zuerst abschließen',
       text: readiness.progress >= 100 ? 'Bereite deine nächste Kunden- oder Recruiting-Kampagne vor.' : 'Das Growth Center wird nach Academy-Abschluss freigeschaltet.',
       value: readiness.progress >= 100 ? 'Jetzt' : `${readiness.progress}%`,
@@ -278,7 +297,7 @@ export function GrowthCenterSection({ partner, academyUpdates = [], onNavigate, 
     },
     {
       id: 'popular',
-      label: 'Beliebte Inhalte',
+      label: t('popularContent', 'Beliebte Inhalte'),
       title: 'Downloads & Vorlagen',
       text: 'Beliebtheit wird später aus echten Nutzungsdaten abgeleitet.',
       value: 'UI',
@@ -286,7 +305,7 @@ export function GrowthCenterSection({ partner, academyUpdates = [], onNavigate, 
     },
     {
       id: 'updated',
-      label: 'Zuletzt aktualisiert',
+      label: t('lastUpdate'),
       title: latestUpdateDate ? formatAdminDate(latestUpdateDate) : 'Noch nicht angebunden',
       text: 'Verwendet vorhandene Academy-Update-Daten, falls sie für diese Rolle sichtbar sind.',
       value: latestUpdateDate ? 'Live' : '—',
@@ -294,7 +313,7 @@ export function GrowthCenterSection({ partner, academyUpdates = [], onNavigate, 
     },
     {
       id: 'favorites',
-      label: 'Favoriten',
+      label: t('favorites', 'Favoriten'),
       title: 'Favoriten vorbereitet',
       text: 'Favoriten bleiben UI-only, bis eine sichere Speicherung freigegeben wird.',
       value: 'UI',
@@ -302,7 +321,7 @@ export function GrowthCenterSection({ partner, academyUpdates = [], onNavigate, 
     },
     {
       id: 'recent',
-      label: 'Zuletzt angesehen',
+      label: t('recentlyViewed', 'Zuletzt angesehen'),
       title: 'Verlauf vorbereitet',
       text: 'Zuletzt angesehen wird nicht gespeichert und benötigt später eine freigegebene Datenstruktur.',
       value: 'UI',
@@ -316,9 +335,9 @@ export function GrowthCenterSection({ partner, academyUpdates = [], onNavigate, 
         <div className="grid gap-5 xl:grid-cols-[1.15fr_0.85fr] xl:items-end">
           <div className="min-w-0">
             <p className="text-xs font-black uppercase tracking-[0.22em] text-yellow-200">Harbor Growth Center</p>
-            <h2 className="mt-3 break-words text-3xl font-black text-yellow-50 sm:text-4xl">Deine Business-Plattform nach der Academy</h2>
+            <h2 className="mt-3 break-words text-3xl font-black text-yellow-50 sm:text-4xl">{t('growthHeroTitle')}</h2>
             <p className="mt-3 max-w-3xl text-sm leading-relaxed text-white/65 sm:text-base">
-              Langfristiger Wissens-, Marketing- und Erfolgsbereich für Partner, die ihre Academy-Reise abgeschlossen haben. Aktuell als sichere UI-Vorbereitung ohne Speicherung, Uploads oder neue Schnittstellen.
+              {t('growthHeroText')}
             </p>
           </div>
           <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
@@ -333,13 +352,13 @@ export function GrowthCenterSection({ partner, academyUpdates = [], onNavigate, 
 
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
         {growthCenterCategories.map((category) => (
-          <GrowthCategoryCard key={category.id} category={category} locked={!hasPreviewAccess} />
+          <GrowthCategoryCard key={category.id} category={category} locked={!hasPreviewAccess} t={t} />
         ))}
       </section>
 
       {hasPreviewAccess ? (
         <>
-          <Panel title="Premium Growth Dashboard" icon={Crown}>
+          <Panel title={t('growthDashboard')} icon={Crown}>
             <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
               {dashboardCards.map((card) => (
                 <GrowthDashboardCard key={card.id} card={card} />
@@ -348,7 +367,7 @@ export function GrowthCenterSection({ partner, academyUpdates = [], onNavigate, 
           </Panel>
 
           <section className="grid gap-5 xl:grid-cols-[0.85fr_1.15fr]">
-            <Panel title="Neue Inhalte" icon={Bell}>
+            <Panel title={t('successNewContent')} icon={Bell}>
               {latestUpdates.length ? (
                 <div className="space-y-3">
                   {latestUpdates.map((item) => {
@@ -375,7 +394,7 @@ export function GrowthCenterSection({ partner, academyUpdates = [], onNavigate, 
               )}
             </Panel>
 
-            <Panel title="Empfohlen für dich" icon={Star}>
+            <Panel title={t('growthRecommended')} icon={Star}>
               <div className="rounded-[1.6rem] border border-yellow-300/20 bg-yellow-400/10 p-5">
                 <p className="text-xs font-black uppercase tracking-[0.18em] text-yellow-200">Nächster Wachstumsschritt</p>
                 <h3 className="mt-3 text-2xl font-black text-yellow-50">Starte mit dem Marketing Hub</h3>
@@ -390,7 +409,8 @@ export function GrowthCenterSection({ partner, academyUpdates = [], onNavigate, 
           </section>
 
           <section className="space-y-5">
-            <CampaignGrowthPanel Panel={Panel} />
+            <CampaignGrowthPanel Panel={Panel} t={t} />
+            <MediaGrowthPanel Panel={Panel} onNavigate={onNavigate} dependencies={{ ...dependencies, t }} />
             {growthHubSections.map((section) => (
               <GrowthHubPanel key={section.id} section={section} Panel={Panel} />
             ))}
@@ -398,7 +418,7 @@ export function GrowthCenterSection({ partner, academyUpdates = [], onNavigate, 
 
           {(isLeader || isAdmin) && <GrowthLeaderPanel Panel={Panel} />}
 
-          <Panel title="Spätere Integrationen vorbereitet" icon={Settings}>
+          <Panel title={t('futureIntegrations')} icon={Settings}>
             <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
               {['CRM', 'n8n', 'WhatsApp', 'KI-Agenten', 'Leonid OS'].map((item) => (
                 <div key={item} className="rounded-2xl border border-white/10 bg-black/25 p-4">

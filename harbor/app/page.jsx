@@ -69,6 +69,8 @@ import {
   CampaignCenterSection as CampaignCenterSectionView,
   CampaignDashboardBanner,
 } from '../components/campaign-center';
+import { MediaCenterSection as MediaCenterSectionView } from '../components/media-center';
+import { createI18nTranslator, getI18nExtensionLabels } from '../components/i18n-extension';
 import AcademyContentAdminOverview from './components/AcademyContentAdminOverview';
 import AcademyDownloadCenter from './components/AcademyDownloadCenter';
 import AcademyLessonNavigation from './components/AcademyLessonNavigation';
@@ -4409,13 +4411,14 @@ const updateTargetOptions = [
 const dashboardNavItems = [
   { id: 'start', labelKey: 'start', icon: Crown },
   { id: 'dashboard', labelKey: 'dashboard', icon: ShieldCheck },
-  { id: 'success', label: 'Success Center', icon: Target },
-  { id: 'growth', label: 'Growth Center', icon: Flame },
-  { id: 'campaigns', label: 'Aktionen', icon: Flame },
+  { id: 'success', labelKey: 'successCenter', icon: Target },
+  { id: 'growth', labelKey: 'growthCenter', icon: Flame },
+  { id: 'campaigns', labelKey: 'campaignCenter', icon: Flame },
+  { id: 'media', labelKey: 'mediaCenter', icon: ImagePlus },
   { id: 'career', labelKey: 'career', icon: Trophy },
-  { id: 'gamification', label: 'Punkte', icon: Trophy },
-  { id: 'leader', label: 'Teamsteuerung', icon: Users },
-  { id: 'analytics', label: 'Analytics', icon: TrendingUp, analyticsOnly: true },
+  { id: 'gamification', labelKey: 'points', icon: Trophy },
+  { id: 'leader', labelKey: 'teamControl', icon: Users },
+  { id: 'analytics', labelKey: 'analytics', icon: TrendingUp, analyticsOnly: true },
   { id: 'news', labelKey: 'notifications', icon: Bell },
   { id: 'modules', labelKey: 'modules', icon: BookOpen },
   { id: 'testlab', labelKey: 'testLab', icon: Search },
@@ -4424,7 +4427,7 @@ const dashboardNavItems = [
   { id: 'calendar', labelKey: 'calendar', icon: CalendarDays },
   { id: 'social', labelKey: 'social', icon: Instagram },
   { id: 'contact', labelKey: 'contact', icon: MessageCircle },
-  { id: 'community', label: 'Community', icon: MessageCircle },
+  { id: 'community', labelKey: 'community', icon: MessageCircle },
   { id: 'chat', labelKey: 'chat', icon: MessageCircle },
   { id: 'qa', labelKey: 'qa', icon: FileQuestion },
   { id: 'profile', labelKey: 'profile', icon: UserCheck },
@@ -5289,11 +5292,19 @@ function normalizeLanguage(language) {
 
 function getCopy(language) {
   const code = languageCodes[normalizeLanguage(language)] || 'de';
+  const englishFallback = code === 'de'
+    ? {}
+    : {
+        ...(labelsByCode.en || {}),
+        ...(notificationLabelsByCode.en || {}),
+      };
   return {
     ...labelsByCode.de,
     ...notificationLabelsByCode.de,
+    ...englishFallback,
     ...(labelsByCode[code] || {}),
     ...(notificationLabelsByCode[code] || {}),
+    ...getI18nExtensionLabels(code),
   };
 }
 
@@ -7241,13 +7252,6 @@ export default function HarborGlobalPartnerAcademy() {
 
           <MobileDashboardNav items={visibleNavItems} activeSection={dashboardSection} setDashboardSection={handleDashboardSectionChange} copy={copy} badges={navBadges} />
 
-          <CampaignDashboardBanner
-            partner={currentPartner}
-            isAdmin={isAdmin}
-            isLeader={canViewLeaderAnalytics}
-            onNavigate={handleDashboardSectionChange}
-          />
-
           {dashboardSection === 'start' && (
             <StartCenterSection
               partner={currentPartner}
@@ -7276,6 +7280,9 @@ export default function HarborGlobalPartnerAcademy() {
               onMarkOnboardingStep={handleMarkOnboardingStep}
               onNavigate={handleDashboardSectionChange}
               academyUpdates={academyUpdates}
+              selectedLanguage={selectedLanguage}
+              isAdmin={isAdmin}
+              isLeader={canViewLeaderAnalytics}
             />
           )}
 
@@ -7289,6 +7296,8 @@ export default function HarborGlobalPartnerAcademy() {
               isLeader={canViewLeaderAnalytics}
               partners={isAdmin ? activityPartners : []}
               pendingPartners={pendingPartners}
+              selectedLanguage={selectedLanguage}
+              copy={copy}
             />
           )}
 
@@ -7299,6 +7308,8 @@ export default function HarborGlobalPartnerAcademy() {
               onNavigate={handleDashboardSectionChange}
               isAdmin={isAdmin}
               isLeader={canViewLeaderAnalytics}
+              selectedLanguage={selectedLanguage}
+              copy={copy}
             />
           )}
 
@@ -7308,6 +7319,17 @@ export default function HarborGlobalPartnerAcademy() {
               onNavigate={handleDashboardSectionChange}
               isAdmin={isAdmin}
               isLeader={canViewLeaderAnalytics}
+              selectedLanguage={selectedLanguage}
+              copy={copy}
+            />
+          )}
+
+          {dashboardSection === 'media' && (
+            <MediaCenterSection
+              isAdmin={isAdmin}
+              isLeader={canViewLeaderAnalytics}
+              selectedLanguage={selectedLanguage}
+              copy={copy}
             />
           )}
 
@@ -13861,7 +13883,9 @@ function NotificationUpdateRulePanel() {
   );
 }
 
-function SuccessCenterSection({ partner, academyUpdates = [], localOnboardingStepIds = [], onNavigate, isAdmin = false, isLeader = false, partners = [], pendingPartners = [], compact = false }) {
+function SuccessCenterSection({ partner, academyUpdates = [], localOnboardingStepIds = [], onNavigate, isAdmin = false, isLeader = false, partners = [], pendingPartners = [], compact = false, selectedLanguage = DEFAULT_LANGUAGE, copy = getCopy(selectedLanguage) }) {
+  const t = createI18nTranslator(selectedLanguage, copy);
+
   return (
     <SuccessCenterSectionView
       partner={partner}
@@ -13885,12 +13909,17 @@ function SuccessCenterSection({ partner, academyUpdates = [], localOnboardingSte
         isAdminOperationsLeader,
         getAnalyticsPartnerProgress,
         toPartnerCount,
+        copy,
+        language: selectedLanguage,
+        t,
       }}
     />
   );
 }
 
-function GrowthCenterSection({ partner, academyUpdates = [], onNavigate, isAdmin = false, isLeader = false }) {
+function GrowthCenterSection({ partner, academyUpdates = [], onNavigate, isAdmin = false, isLeader = false, selectedLanguage = DEFAULT_LANGUAGE, copy = getCopy(selectedLanguage) }) {
+  const t = createI18nTranslator(selectedLanguage, copy);
+
   return (
     <GrowthCenterSectionView
       partner={partner}
@@ -13906,12 +13935,17 @@ function GrowthCenterSection({ partner, academyUpdates = [], onNavigate, isAdmin
         getOnboardingAssistantSummary,
         buildNotificationCenterItems,
         formatAdminDate,
+        copy,
+        language: selectedLanguage,
+        t,
       }}
     />
   );
 }
 
-function CampaignCenterSection({ partner, onNavigate, isAdmin = false, isLeader = false }) {
+function CampaignCenterSection({ partner, onNavigate, isAdmin = false, isLeader = false, selectedLanguage = DEFAULT_LANGUAGE, copy = getCopy(selectedLanguage) }) {
+  const t = createI18nTranslator(selectedLanguage, copy);
+
   return (
     <CampaignCenterSectionView
       partner={partner}
@@ -13922,6 +13956,28 @@ function CampaignCenterSection({ partner, onNavigate, isAdmin = false, isLeader 
         Panel,
         Stat,
         NotificationEmptyState,
+        copy,
+        language: selectedLanguage,
+        t,
+      }}
+    />
+  );
+}
+
+function MediaCenterSection({ isAdmin = false, isLeader = false, selectedLanguage = DEFAULT_LANGUAGE, copy = getCopy(selectedLanguage) }) {
+  const t = createI18nTranslator(selectedLanguage, copy);
+
+  return (
+    <MediaCenterSectionView
+      isAdmin={isAdmin}
+      isLeader={isLeader}
+      dependencies={{
+        Panel,
+        Stat,
+        NotificationEmptyState,
+        copy,
+        language: selectedLanguage,
+        t,
       }}
     />
   );
@@ -13930,32 +13986,15 @@ function CampaignCenterSection({ partner, onNavigate, isAdmin = false, isLeader 
 function DashboardHome({
   partner,
   overallProgress,
-  partners,
   copy,
-  rankingPartners = [],
-  communitySummary,
   academyUpdates = [],
   localOnboardingStepIds = [],
-  onMarkOnboardingStep,
   onNavigate,
+  selectedLanguage = DEFAULT_LANGUAGE,
+  isAdmin = false,
+  isLeader = false,
 }) {
-  const realApprovedPartners = dedupePartners([...partners, ...rankingPartners].filter(isRealApprovedPartner));
-  const activePartnerCount = realApprovedPartners.length;
-  const liveSummary = {
-    ...communityStats,
-    ...communitySummary,
-    activePartners: activePartnerCount,
-    onlinePartners: Math.min(Number(communitySummary?.onlinePartners || 0), activePartnerCount),
-    instagramProfiles: realApprovedPartners.filter(hasVisibleInstagramProfile).length,
-  };
-  const academyRanking = buildAcademyRanking(rankingPartners, partner);
-  const ownRanking = academyRanking.find((item) => item.id === partner?.id) || buildAcademyRanking([partner].filter(Boolean), partner)[0];
-  const topPartners = academyRanking.slice(0, 5);
-  const teamRanking = buildTeamRanking(rankingPartners, partner);
-  const ownTeamRanking = teamRanking.find((item) => item.id === partner?.id) || buildTeamRanking([partner].filter(Boolean), partner)[0];
-  const topTeams = teamRanking.slice(0, 5);
-  const ownRankLabel = ownRanking?.rank ? `#${ownRanking.rank}` : partner?.role === 'admin' ? 'Founder' : '-';
-  const ownTeamRankLabel = ownTeamRanking?.teamRank ? `#${ownTeamRanking.teamRank}` : partner?.role === 'admin' ? 'Founder' : '-';
+  const t = useMemo(() => createI18nTranslator(selectedLanguage, copy), [copy, selectedLanguage]);
   const academyModuleSummary = getPartnerAcademySummary(partner);
   const onboardingAssistant = getOnboardingAssistantSummary(partner, localOnboardingStepIds, academyModuleSummary);
   const onboardingProgress = onboardingAssistant.progress || academyModuleSummary.overallProgress || partner?.academyProgress?.onboardingProgressPercent || partner?.academyProgress?.progressPercent || overallProgress;
@@ -13964,163 +14003,160 @@ function DashboardHome({
     : academyModuleSummary.nextModule
       ? `Weiter mit „${academyModuleSummary.nextModule.title}“`
     : getPartnerOnboardingRecommendation(partner);
-  const readinessItems = [
-    {
-      label: 'Profilbild',
-      ready: Boolean(partner?.profileImageUrl),
-      text: partner?.profileImageUrl ? 'vorhanden' : 'ergänzen',
-    },
-    {
-      label: 'Team',
-      ready: Boolean(String(partner?.teamName || '').trim()) || Number(partner?.teamPartnerCount || 0) > 0,
-      text: partner?.teamName || (Number(partner?.teamPartnerCount || 0) > 0 ? `${formatPartnerCount(partner.teamPartnerCount)} Partner` : 'offen'),
-    },
-    {
-      label: 'Onboarding',
-      ready: onboardingAssistant.isComplete,
-      text: `${onboardingAssistant.completedRequiredCount}/${onboardingAssistant.requiredCount} Schritte erledigt`,
-    },
-  ];
-  const quickActions = [
-    {
-      id: 'profile',
-      title: partner?.profileImageUrl ? 'Profil prüfen' : 'Profil vervollständigen',
-      text: partner?.profileImageUrl ? 'Foto, Instagram und Benachrichtigungen aktuell halten.' : 'Profilbild ergänzen und Sichtbarkeit prüfen.',
-      icon: UserCheck,
-      target: 'profile',
-    },
-    {
-      id: 'next-step',
-      title: 'Nächster Schritt',
-      text: nextStep,
-      icon: onboardingAssistant.nextStep?.icon || BookOpen,
-      target: onboardingAssistant.nextStep?.target || 'modules',
-    },
-    {
-      id: 'calendar',
-      title: 'Support-Termin',
-      text: 'Bei Fragen direkt Academy-Support buchen.',
-      icon: CalendarDays,
-      target: 'calendar',
-    },
-  ];
+  const openTaskCount = Math.max(0, onboardingAssistant.requiredCount - onboardingAssistant.completedRequiredCount);
+  const todayTaskCount = Math.min(4, Math.max(1, openTaskCount));
   const dashboardNotifications = buildNotificationCenterItems({
     updates: academyUpdates,
     isAdmin: partner?.role === 'admin',
     isLeader: isLeaderAnalyticsPartner(partner),
   });
+  const todayTasks = [
+    {
+      id: 'module',
+      title: t('uxTaskModule'),
+      text: nextStep || t('uxTaskModuleText'),
+      icon: BookOpen,
+      target: onboardingAssistant.nextStep?.target || 'modules',
+      visible: true,
+    },
+    {
+      id: 'profile',
+      title: t('uxTaskProfile'),
+      text: t('uxTaskProfileText'),
+      icon: UserCheck,
+      target: 'profile',
+      visible: !partner?.profileImageUrl,
+    },
+    {
+      id: 'ppm',
+      title: t('uxTaskPpm'),
+      text: t('uxTaskPpmText'),
+      icon: Search,
+      target: 'testlab',
+      visible: onboardingProgress > 0,
+    },
+    {
+      id: 'story',
+      title: t('uxTaskStory'),
+      text: t('uxTaskStoryText'),
+      icon: Instagram,
+      target: 'media',
+      visible: onboardingProgress >= 20,
+    },
+    {
+      id: 'whatsapp',
+      title: t('uxTaskWhatsApp'),
+      text: t('uxTaskWhatsAppText'),
+      icon: MessageCircle,
+      target: 'resources',
+      visible: onboardingProgress >= 40,
+    },
+    {
+      id: 'team',
+      title: t('uxTaskTeam'),
+      text: t('uxTaskTeamText'),
+      icon: Users,
+      target: 'leader',
+      visible: isLeader || Number(partner?.teamPartnerCount || 0) > 0,
+    },
+  ].filter((task) => task.visible).slice(0, 4);
+  const overviewCards = [
+    { id: 'progress', label: copy.academyProgress || t('learningProgress'), value: `${onboardingProgress}%`, icon: BookOpen },
+    { id: 'today', label: t('uxTodayTasksCount'), value: todayTaskCount, icon: Target },
+    { id: 'open', label: t('uxOpenTasksCount'), value: openTaskCount, icon: CheckCircle2 },
+    { id: 'points', label: t('uxPoints'), value: formatPoints(partner?.aquaPoints || 0), icon: Trophy },
+    { id: 'level', label: t('uxLevel'), value: partner?.aquaLevel || t('starterLevel'), icon: Crown },
+    { id: 'certificates', label: t('uxCertificates'), value: partner?.academyProgress?.certificationPassed ? '1' : '0', icon: ShieldCheck },
+  ];
+  const compactLinks = [
+    { id: 'media', title: t('uxMediaTeaserTitle'), text: t('uxMediaTeaserText'), action: t('uxOpenMedia'), icon: ImagePlus, target: 'media' },
+    { id: 'growth', title: t('uxGrowthTeaserTitle'), text: t('uxGrowthTeaserText'), action: t('uxOpenGrowth'), icon: Flame, target: 'growth' },
+    { id: 'success', title: t('uxSuccessTeaserTitle'), text: t('uxSuccessTeaserText'), action: t('uxOpenSuccess'), icon: Target, target: 'success' },
+  ];
 
   return (
-    <>
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
-        <Stat icon={Users} label={copy.activePartners} value={activePartnerCount} />
-        <Stat icon={Circle} label={copy.partnersOnline} value={liveSummary.onlinePartners} />
-        <Stat icon={FileQuestion} label={copy.openQuestions} value={liveSummary.openQuestions} />
-        <Stat icon={CheckCircle2} label={copy.answered} value={liveSummary.answeredQuestions} />
-        <Stat icon={MessageCircle} label={copy.messagesLabel} value={liveSummary.messages} />
-        <Stat icon={Bell} label={copy.notifications} value={liveSummary.notificationCount} />
-      </section>
+    <section className="space-y-5">
+      <Card className="overflow-hidden rounded-[2rem] border border-yellow-300/20 bg-gradient-to-br from-yellow-400/[0.14] via-white/[0.06] to-black/55 text-white shadow-2xl shadow-yellow-500/10 backdrop-blur-xl">
+        <CardContent className="p-5 sm:p-6 md:p-8">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div className="min-w-0">
+              <p className="text-xs font-black uppercase tracking-[0.22em] text-yellow-200">{t('uxNormalDashboard')}</p>
+              <h2 className="mt-2 break-words text-3xl font-black text-yellow-50 sm:text-4xl">
+                {copy.welcome}, {partner?.firstName || t('partner')}
+              </h2>
+              <p className="mt-3 max-w-3xl text-sm leading-relaxed text-white/65">{t('uxWelcomeText')}</p>
+            </div>
+            <Button type="button" onClick={() => onNavigate?.(onboardingAssistant.nextStep?.target || 'modules')} className="min-h-12 w-full rounded-2xl bg-yellow-400 px-5 py-3 font-black text-black hover:bg-yellow-300 lg:w-auto">
+              {t('open')} <ChevronRight size={16} />
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
-      <LatestNotificationsWidget notifications={dashboardNotifications} onNavigate={onNavigate} />
+      <Panel title={t('uxTodayTasksTitle')} icon={Target}>
+        <p className="mb-4 text-sm leading-relaxed text-white/58">{t('uxTodayTasksText')}</p>
+        {todayTasks.length ? (
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            {todayTasks.map(({ id, title, text, icon: Icon, target }) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => onNavigate?.(target)}
+                className="group min-w-0 rounded-[1.5rem] border border-white/10 bg-black/25 p-4 text-left text-white transition hover:-translate-y-0.5 hover:border-yellow-300/30 hover:bg-yellow-400/[0.08]"
+              >
+                <span className="flex h-11 w-11 items-center justify-center rounded-2xl border border-yellow-300/20 bg-yellow-400/10 text-yellow-200 transition group-hover:bg-yellow-400 group-hover:text-black">
+                  <Icon size={20} />
+                </span>
+                <span className="mt-4 block break-words font-black text-yellow-50">{title}</span>
+                <span className="mt-2 block break-words text-sm leading-relaxed text-white/55">{text}</span>
+                <span className="mt-4 inline-flex items-center gap-1 text-sm font-black text-yellow-200">
+                  {t('open')} <ChevronRight size={15} />
+                </span>
+              </button>
+            ))}
+          </div>
+        ) : (
+          <NotificationEmptyState title={t('uxNoUrgentTasks')} text={t('uxReducedDuplicates')} />
+        )}
+      </Panel>
 
-      <BookingCtaBand copy={copy} />
+      <Panel title={t('uxProgressSnapshotTitle')} icon={ShieldCheck}>
+        <p className="mb-4 text-sm leading-relaxed text-white/58">{t('uxProgressSnapshotText')}</p>
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
+          {overviewCards.map(({ id, label, value, icon: Icon }) => (
+            <div key={id} className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
+              <Icon size={18} className="text-yellow-200" />
+              <p className="mt-3 break-words text-2xl font-black text-yellow-50">{value}</p>
+              <p className="mt-1 text-xs font-black uppercase tracking-[0.12em] text-white/45">{label}</p>
+            </div>
+          ))}
+        </div>
+      </Panel>
 
-      <OnboardingAssistantCard
-        partner={partner}
-        localCompletedStepIds={localOnboardingStepIds}
-        onMarkStep={onMarkOnboardingStep}
-        onNavigate={onNavigate}
-        title="Dein Onboarding-Fahrplan"
-        intro="Bleib fokussiert: Das Dashboard zeigt dir immer den nächsten sinnvollen Schritt bis zum abgeschlossenen Partner-Onboarding."
-      />
+      <CampaignDashboardBanner partner={partner} isAdmin={isAdmin} isLeader={isLeader} onNavigate={onNavigate} t={t} />
 
-      <GamificationDashboardTeaser partner={partner} onNavigate={onNavigate} />
+      <LatestNotificationsWidget notifications={dashboardNotifications.slice(0, 5)} onNavigate={onNavigate} />
 
       <section className="grid gap-3 md:grid-cols-3">
-        {quickActions.map(({ id, title, text, icon: Icon, target }) => (
+        {compactLinks.map(({ id, title, text, action, icon: Icon, target }) => (
           <button
             key={id}
             type="button"
             onClick={() => onNavigate?.(target)}
-            className="group flex min-w-0 flex-col rounded-[1.5rem] border border-yellow-300/15 bg-white/[0.06] p-4 text-left text-white shadow-lg shadow-black/20 transition hover:-translate-y-0.5 hover:border-yellow-200/35 hover:bg-yellow-400/[0.10] sm:rounded-[1.75rem] sm:p-5"
+            className="group min-w-0 rounded-[1.5rem] border border-yellow-300/15 bg-white/[0.055] p-4 text-left text-white transition hover:-translate-y-0.5 hover:border-yellow-300/35 hover:bg-yellow-400/[0.08] sm:p-5"
           >
-            <span className="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl border border-yellow-300/20 bg-yellow-400/10 text-yellow-200 transition group-hover:bg-yellow-400 group-hover:text-black">
-              <Icon size={21} />
+            <span className="flex h-11 w-11 items-center justify-center rounded-2xl border border-yellow-300/20 bg-yellow-400/10 text-yellow-200 transition group-hover:bg-yellow-400 group-hover:text-black">
+              <Icon size={20} />
             </span>
-            <span className="break-words text-base font-black text-yellow-50">{title}</span>
-            <span className="mt-2 break-words text-sm leading-relaxed text-white/60">{text}</span>
+            <span className="mt-4 block break-words text-lg font-black text-yellow-50">{title}</span>
+            <span className="mt-2 block break-words text-sm leading-relaxed text-white/55">{text}</span>
             <span className="mt-4 inline-flex items-center gap-1 text-sm font-black text-yellow-200">
-              Öffnen <ChevronRight size={15} />
+              {action} <ChevronRight size={15} />
             </span>
           </button>
         ))}
       </section>
-
-      <section className="grid gap-5 xl:grid-cols-[0.95fr_1.05fr]">
-        <Card className="overflow-hidden rounded-[2rem] border border-yellow-300/20 bg-gradient-to-br from-white/[0.09] via-white/[0.045] to-yellow-400/[0.08] text-white shadow-2xl shadow-yellow-500/10 backdrop-blur-xl">
-          <CardContent className="p-7 md:p-9">
-            <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <h3 className="text-2xl font-bold">{copy.dashboardOpen}</h3>
-                <p className="mt-1 text-sm text-white/50">{copy.welcome}, {partner?.firstName || 'Partner'}. {copy.accessApproved}</p>
-              </div>
-              <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-[1.75rem] border border-yellow-100/40 bg-gradient-to-br from-yellow-200 via-yellow-400 to-yellow-800 text-2xl font-black text-black shadow-lg shadow-yellow-500/35">
-                {onboardingProgress}%
-              </div>
-            </div>
-            <div className="h-4 overflow-hidden rounded-full bg-black/35 ring-1 ring-white/10">
-              <motion.div initial={{ width: 0 }} animate={{ width: `${onboardingProgress}%` }} transition={{ duration: 1 }} className="h-full bg-gradient-to-r from-yellow-500 to-yellow-200" />
-            </div>
-            <div className="mt-7 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-              <Stat icon={Star} label={copy.status} value="Freigegeben" />
-              <Stat icon={Trophy} label="Aqua Global Level" value={partner?.aquaLevel || 'Starterstufe'} />
-              <Stat icon={Flame} label="Punkte" value={formatPoints(partner?.aquaPoints || 0)} />
-              <Stat icon={Users} label="Teamgröße" value={formatPartnerCount(partner?.teamPartnerCount || 0)} />
-              <Stat icon={Crown} label="Punkte-Rang" value={ownRankLabel} />
-              <Stat icon={TrendingUp} label="Team-Rang" value={ownTeamRankLabel} />
-            </div>
-            <div className="mt-6 rounded-3xl border border-yellow-300/15 bg-black/25 p-4">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                <div className="min-w-0">
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-yellow-200">Nächster Schritt</p>
-                  <p className="mt-2 break-words text-lg font-black text-yellow-50">{nextStep}</p>
-                  <p className="mt-1 text-sm text-white/55">Onboarding-Fortschritt: {onboardingProgress}% · {onboardingAssistant.completedRequiredCount}/{onboardingAssistant.requiredCount} Schritte erledigt</p>
-                </div>
-                <Button type="button" onClick={() => onNavigate?.(onboardingAssistant.nextStep?.target || 'modules')} className="w-full rounded-2xl bg-yellow-400 px-4 py-3 text-sm font-black text-black hover:bg-yellow-300 sm:w-auto">
-                  {onboardingAssistant.nextStep?.actionLabel || 'Öffnen'} <ChevronRight size={15} />
-                </Button>
-              </div>
-              <div className="mt-4 grid gap-2 sm:grid-cols-3">
-                {readinessItems.map((item) => (
-                  <div key={item.label} className={`rounded-2xl border px-3 py-3 text-sm ${item.ready ? 'border-green-300/20 bg-green-400/10 text-green-100' : 'border-yellow-300/20 bg-yellow-400/10 text-yellow-100'}`}>
-                    <p className="font-black">{item.label}</p>
-                    <p className="mt-1 break-words text-xs opacity-80">{item.text}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <AcademyRankingPanel ranking={topPartners} compact />
-      </section>
-
-      <section className="grid gap-5 xl:grid-cols-[1.05fr_0.95fr]">
-        <TeamRankingPanel ranking={topTeams} compact />
-        <Panel title={copy.latestActivity} icon={Clock}>
-          <div className="space-y-3 text-sm text-white/65">
-            <div className="rounded-2xl border border-white/10 bg-black/25 p-4">
-              <p className="font-bold text-yellow-50">{copy.dashboard}</p>
-              <p className="mt-1">{copy.accessApproved}</p>
-            </div>
-            <div className="rounded-2xl border border-white/10 bg-black/25 p-4">
-              <p className="font-bold text-yellow-50">{copy.communityChatTitle}</p>
-              <p className="mt-1">{liveSummary.onlinePartners} {copy.partnersOnline}</p>
-            </div>
-          </div>
-        </Panel>
-      </section>
-    </>
+    </section>
   );
 }
 
@@ -14697,11 +14733,6 @@ function StartCenterSection({
   localOnboardingStepIds = [],
   onMarkOnboardingStep,
   onNavigate,
-  academyUpdates = [],
-  isAdmin = false,
-  isLeader = false,
-  partners = [],
-  pendingPartners = [],
 }) {
   const partnerCode = partner?.discountCode || DEFAULT_DISCOUNT_CODE;
 
@@ -14723,55 +14754,123 @@ function StartCenterSection({
         </CardContent>
       </Card>
 
-      <SuccessCenterSection
-        partner={partner}
-        academyUpdates={academyUpdates}
-        localOnboardingStepIds={localOnboardingStepIds}
-        onNavigate={onNavigate}
-        isAdmin={isAdmin}
-        isLeader={isLeader}
-        partners={partners}
-        pendingPartners={pendingPartners}
-        compact
-      />
-
-      <OnboardingAssistantCard
-        partner={partner}
+      <GuidedAcademyOnboarding
+        copy={copy}
+        selectedLanguage={selectedLanguage}
         localCompletedStepIds={localOnboardingStepIds}
         onMarkStep={onMarkOnboardingStep}
         onNavigate={onNavigate}
-        title="Dein Onboarding-Assistent"
-        intro="Folge der Checkliste Schritt für Schritt. So weißt du nach dem ersten Login sofort, was als Nächstes wichtig ist."
       />
+    </section>
+  );
+}
 
-      <section className="grid gap-5 lg:grid-cols-[0.85fr_1.15fr]">
-        <Card className="rounded-[2rem] border border-yellow-300/20 bg-yellow-400/[0.08] text-white shadow-lg shadow-yellow-500/10 backdrop-blur-xl">
-          <CardContent className="p-6 md:p-7">
+function GuidedAcademyOnboarding({ copy, selectedLanguage, localCompletedStepIds = [], onMarkStep, onNavigate }) {
+  const t = useMemo(() => createI18nTranslator(selectedLanguage, copy), [copy, selectedLanguage]);
+  const welcomeDone = localCompletedStepIds.includes('welcome-module');
+  const tourDone = localCompletedStepIds.includes('academy-tour-video');
+  const finished = localCompletedStepIds.includes('finish-onboarding');
+  const markWelcome = () => onMarkStep?.('welcome-module');
+  const markTour = () => onMarkStep?.('academy-tour-video');
+  const finishOnboarding = () => {
+    onMarkStep?.('welcome-module');
+    onMarkStep?.('academy-tour-video');
+    onMarkStep?.('finish-onboarding');
+    onNavigate?.('dashboard');
+  };
+  const steps = [
+    { id: 'welcome', label: t('uxStep1'), title: t('uxWelcomeVideoTitle'), done: welcomeDone, icon: PlayCircle },
+    { id: 'tour', label: t('uxStep2'), title: t('uxAcademyTourTitle'), done: tourDone, icon: Video },
+    { id: 'done', label: t('uxStep3'), title: t('uxOnboardingCompleteTitle'), done: finished, icon: Trophy },
+  ];
+
+  return (
+    <section className="space-y-5">
+      <Card className="overflow-hidden rounded-[2rem] border border-yellow-300/25 bg-gradient-to-br from-yellow-400/[0.14] via-white/[0.06] to-black/45 text-white shadow-2xl shadow-yellow-500/10 backdrop-blur-xl">
+        <CardContent className="p-5 sm:p-6 md:p-8">
+          <div className="grid gap-5 xl:grid-cols-[0.82fr_1.18fr]">
+            <div className="min-w-0">
+              <p className="text-xs font-black uppercase tracking-[0.22em] text-yellow-200">{t('uxGuidedOnboardingTitle')}</p>
+              <h3 className="mt-2 break-words text-3xl font-black text-yellow-50 sm:text-4xl">{t('uxWelcomeTitle')}</h3>
+              <p className="mt-3 text-sm leading-relaxed text-white/62">{t('uxGuidedOnboardingText')}</p>
+              <div className="mt-5 grid gap-2">
+                {steps.map(({ id, label, title, done, icon: Icon }) => (
+                  <div key={id} className={`flex items-center gap-3 rounded-2xl border px-3 py-3 ${done ? 'border-green-300/20 bg-green-400/10 text-green-100' : 'border-white/10 bg-black/25 text-white/62'}`}>
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-yellow-400/10 text-yellow-200 ring-1 ring-yellow-200/15">
+                      {done ? <CheckCircle2 size={17} /> : <Icon size={17} />}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="text-[10px] font-black uppercase tracking-[0.14em] opacity-70">{label}</p>
+                      <p className="break-words text-sm font-black">{title}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid gap-4">
+              <StartOnboardingVideoCard
+                copy={copy}
+                video={startCenterOnboardingVideo}
+                selectedLanguage={selectedLanguage}
+                title={t('uxWelcomeVideoTitle')}
+                description={t('uxWelcomeVideoText')}
+                stepLabel={t('uxStep1')}
+              />
+              {!welcomeDone && (
+                <Button type="button" onClick={markWelcome} className="min-h-12 w-full rounded-2xl bg-yellow-400 px-4 py-3 font-black text-black hover:bg-yellow-300">
+                  <CheckCircle2 size={16} /> {t('uxMarkWatched')}
+                </Button>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <section className="grid gap-5 lg:grid-cols-[1fr_0.72fr]">
+        <Card className="rounded-[2rem] border border-yellow-300/20 bg-white/[0.055] text-white shadow-lg shadow-black/20 backdrop-blur-xl">
+          <CardContent className="p-5 sm:p-6">
             <div className="flex items-start gap-4">
-              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-yellow-400/15 text-yellow-100 ring-1 ring-yellow-200/30">
-                <Crown size={22} />
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-yellow-300/20 bg-yellow-400/10 text-yellow-200">
+                <Video size={22} />
               </span>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-yellow-200">{copy.premiumPartnerSystem}</p>
-                <h4 className="mt-2 text-2xl font-black">{copy.onboardingCallTitle}</h4>
-                <p className="mt-2 text-sm leading-relaxed text-white/65">{copy.onboardingCallText}</p>
-                <PremiumCalendlyLink copy={copy} label={copy.schedulePartnerCall} className="mt-5 w-full" />
+              <div className="min-w-0">
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-yellow-200">{t('uxStep2')}</p>
+                <h4 className="mt-2 break-words text-2xl font-black text-yellow-50">{t('uxAcademyTourTitle')}</h4>
+                <p className="mt-2 text-sm leading-relaxed text-white/60">{t('uxAcademyTourText')}</p>
+                <div className="mt-4 rounded-2xl border border-white/10 bg-black/25 p-4 text-sm font-bold text-white/55">
+                  {t('uxTourVideoPending')}
+                </div>
+                <Button type="button" onClick={markTour} className="mt-4 min-h-12 w-full rounded-2xl bg-yellow-400 px-4 py-3 font-black text-black hover:bg-yellow-300 sm:w-auto">
+                  <CheckCircle2 size={16} /> {tourDone ? t('done') : t('uxMarkWatched')}
+                </Button>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <StartOnboardingVideoCard copy={copy} video={startCenterOnboardingVideo} selectedLanguage={selectedLanguage} />
+        <Card className="rounded-[2rem] border border-green-300/20 bg-green-400/[0.08] text-white shadow-lg shadow-black/20 backdrop-blur-xl">
+          <CardContent className="p-5 sm:p-6">
+            <Trophy size={24} className="text-green-100" />
+            <p className="mt-3 text-xs font-black uppercase tracking-[0.18em] text-green-100">{t('uxStep3')}</p>
+            <h4 className="mt-2 break-words text-2xl font-black text-green-50">{t('uxOnboardingCompleteTitle')}</h4>
+            <p className="mt-2 text-sm leading-relaxed text-white/62">{t('uxOnboardingCompleteText')}</p>
+            <Button type="button" onClick={finishOnboarding} className="mt-5 min-h-12 w-full rounded-2xl bg-yellow-400 px-4 py-3 font-black text-black hover:bg-yellow-300">
+              {finished ? t('uxContinueDashboard') : t('uxFinishOnboarding')} <ChevronRight size={16} />
+            </Button>
+          </CardContent>
+        </Card>
       </section>
     </section>
   );
 }
 
-function StartOnboardingVideoCard({ copy, video, selectedLanguage }) {
+function StartOnboardingVideoCard({ copy, video, selectedLanguage, title, description, stepLabel }) {
+  const t = useMemo(() => createI18nTranslator(selectedLanguage, copy), [copy, selectedLanguage]);
   const onboardingVideo = video || {
     id: STARTCENTER_ONBOARDING_VIDEO_ID,
-    title: 'Willkommensvideo / Onboarding',
-    description: copy.startCenterText,
+    title: title || t('uxWelcomeVideoTitle'),
+    description: description || t('uxWelcomeVideoText'),
     category: copy.startCenterTitle,
     moduleTitle: copy.startCenterTitle,
     uploadDate: '-',
@@ -14789,12 +14888,12 @@ function StartOnboardingVideoCard({ copy, video, selectedLanguage }) {
       <CardContent className="p-5 md:p-6">
         <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-yellow-200">{copy.startCenterTitle}</p>
-            <h4 className="mt-2 text-2xl font-black text-yellow-50">Willkommensvideo / Onboarding</h4>
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-yellow-200">{stepLabel || copy.startCenterTitle}</p>
+            <h4 className="mt-2 text-2xl font-black text-yellow-50">{title || t('uxWelcomeVideoTitle')}</h4>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-white/65">{onboardingVideo.description}</p>
           </div>
           <span className="inline-flex items-center gap-2 rounded-full border border-yellow-300/25 bg-yellow-400/10 px-4 py-2 text-xs font-black text-yellow-100">
-            <PlayCircle size={15} /> Erste Schritte
+            <PlayCircle size={15} /> {t('uxWatchWelcome')}
           </span>
         </div>
 
@@ -14816,7 +14915,7 @@ function StartOnboardingVideoCard({ copy, video, selectedLanguage }) {
           ) : (
             <div className="flex aspect-video flex-col items-center justify-center gap-3 text-center text-white/60">
               <Video size={44} className="text-yellow-300" />
-              <p className="font-bold">{videoError || 'Willkommensvideo wird vorbereitet.'}</p>
+              <p className="font-bold">{videoError || t('uxWelcomeVideoPending')}</p>
             </div>
           )}
         </div>

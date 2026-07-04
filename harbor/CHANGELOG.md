@@ -1,5 +1,233 @@
 # Changelog
 
+## UX, Onboarding und Navigation - 2026-07-03
+
+### Analyse
+
+- Partner-Start und Dashboard auf doppelte Inhalte geprüft.
+- Sichtbare Wiederholungen identifiziert:
+  - Success Center zusätzlich im Startbereich.
+  - Onboarding-Checkliste zusätzlich im Dashboard.
+  - Gamification-, Ranking-, Aktivitäts- und Buchungsbereiche gleichzeitig auf der Dashboard-Startseite.
+  - Aktionsbanner auf jeder Dashboard-Unterseite statt nur im Tageskontext.
+- Ergebnis: Die Startseite war funktional stark, aber für neue Partner zu voll und mit mehreren ähnlichen CTAs überladen.
+
+### Umgesetzt
+
+- Startbereich zu einer dreistufigen Onboarding-Führung vereinfacht:
+  1. Willkommensvideo
+  2. Academy-Erklärung
+  3. Onboarding abgeschlossen / normales Dashboard öffnen
+- Academy-Erklärung als UI vorbereitet, ohne Fake-Video oder Storage-Änderung.
+- Dashboard-Startseite neu komprimiert:
+  - Willkommen
+  - Heutige Aufgaben
+  - Kompakte Fortschrittsübersicht
+  - Aktuelle Kampagne
+  - Neuigkeiten
+  - Media Center
+  - Growth Center
+  - Success Center
+- Doppelte Vollbereiche aus der Dashboard-Startseite entfernt:
+  - vollständige Onboarding-Checkliste
+  - Gamification-Teaser
+  - Rankingkarten
+  - Aktivitätskarte
+  - Buchungs-CTA
+- Globales Aktionsbanner von allen Unterseiten entfernt und in den Dashboard-Kontext verlagert.
+- Neue sichtbare UI-Texte ausschließlich über das globale Übersetzungssystem ergänzt.
+- Neue Dokumentation `docs/UX_ONBOARDING_BLUEPRINT.md` erstellt.
+
+### Geänderte Dateien
+
+- `app/page.jsx`
+- `components/i18n-extension.js`
+- `docs/UX_ONBOARDING_BLUEPRINT.md`
+- `CHANGELOG.md`
+
+### Bewusst nicht geändert
+
+- Keine Login-Änderungen.
+- Keine Registrierungsänderungen.
+- Keine Auth-Änderungen.
+- Keine API-Änderungen.
+- Keine Datenbankänderungen.
+- Keine Supabase-Änderungen.
+- Keine R2-/Storage-Änderungen.
+- Keine Infrastrukturänderungen.
+- Keine produktiven Schreibvorgänge.
+- Keine Partnerdatenänderungen.
+- Keine neuen Libraries.
+
+### Tests
+
+- `npm run lint`: bestanden; Hinweis: Babel deoptimiert weiterhin die Ausgabe von `app/page.jsx` wegen Dateigröße, kein Fehler.
+- `npm run build`: bestanden.
+
+### Offen
+
+- Echtes Academy-Erklärungsvideo muss später als Content-Asset bereitgestellt werden.
+- Persistentes Onboarding benötigt später eine freigegebene Datenstruktur.
+- Deployment wurde nicht gestartet; Produktionsprüfung benötigt separate Freigabe.
+
+## Full Website Translation Fix / Complete i18n Coverage - 2026-07-03
+
+### Analyse
+
+- Bestehende Sprachlogik in `app/page.jsx` geprüft:
+  - Sprache wird über `selectedLanguage` und `localStorage` (`harbor-global-language`) geführt.
+  - `getCopy(language)` war vorhanden, hatte aber keine saubere Englisch-vor-Deutsch-Fallbackkette für neue UI-Bereiche.
+  - Mehrere neue Center-Komponenten enthielten noch direkt sichtbare deutsche UI-Labels.
+- Betroffene UI-Bereiche geprüft:
+  - Success Center
+  - Growth Center
+  - Campaign Center
+  - Partner Earnings Engine
+  - Media Center
+  - neue Dashboard-Navigationseinträge
+
+### Umgesetzt
+
+- Neue zentrale i18n-Erweiterung `components/i18n-extension.js` angebunden.
+- `getCopy()` erweitert:
+  - gewählte Sprache
+  - Englisch-Fallback
+  - Deutsch-Fallback
+  - keine leeren/undefinierten Texte.
+- Dashboard-Navigation neuer Bereiche von festen Labels auf `labelKey` umgestellt.
+- `t()`-Translator an ausgelagerte Center-Komponenten weitergereicht.
+- Folgende Bereiche an Translation-Keys angebunden:
+  - Success-Center-Hero, Kennzahlen, Aufgaben, Badges, CTAs und Empfehlungspanel
+  - Growth-Center-Hero, Kategorien, Dashboardkarten und integrierte Panels
+  - Campaign-Center-Hero, Kennzahlen, Status, Material-, Preis- und Empty-State-Panels
+  - Partner-Earnings-Engine-Hauptlabels und zentrale Paneltitel
+  - Media-Center-Hero, Suche, Filter, Kategorien, Status, Rollenmodell, Empty States und Admin-UI
+- Neue Dokumentation `docs/I18N_TRANSLATION_COVERAGE.md` erstellt.
+
+### Geänderte Dateien
+
+- `app/page.jsx`
+- `components/i18n-extension.js`
+- `components/success-center.jsx`
+- `components/growth-center.jsx`
+- `components/campaign-center.jsx`
+- `components/partner-earnings-engine.jsx`
+- `components/media-center.jsx`
+- `docs/I18N_TRANSLATION_COVERAGE.md`
+- `CHANGELOG.md`
+
+### Bewusst nicht geändert
+
+- Keine Login-Änderungen.
+- Keine Registrierungsänderungen.
+- Keine Auth-Änderungen.
+- Keine API-Änderungen.
+- Keine Datenbankänderungen.
+- Keine Supabase-Änderungen.
+- Keine R2-/Storage-Änderungen.
+- Keine Infrastrukturänderungen.
+- Keine produktiven Schreibvorgänge.
+- Keine Partnerdatenänderungen.
+- Keine neuen Libraries.
+
+### Offen
+
+- Lange historische Content-Blöcke in `app/page.jsx` sollten in späteren Sprints weiter modularisiert und schrittweise mit Translation-Keys versehen werden.
+- Fachliche Übersetzungen für RU, RO, CS, TR und EL sollten vor externem Launch durch Muttersprachler geprüft werden.
+- Rechtliche Texte, Produkt-/Preis-/Provisionsinhalte und Academy-Lektionen brauchen separate fachliche Freigabe.
+
+### Tests
+
+- `npm run lint`: bestanden; Hinweis: Babel deoptimiert weiterhin die Ausgabe von `app/page.jsx` wegen Dateigröße, kein Fehler.
+- `npm run build`: bestanden.
+
+## Media Center mit Telegram-Materialbibliothek - 2026-07-03
+
+### Analyse
+
+- Bestehende Dashboard-Navigation und Center-Struktur geprüft:
+  - `app/page.jsx`
+  - `components/campaign-center.jsx`
+  - `components/growth-center.jsx`
+- Media Center als eigener UI-Bereich umgesetzt, damit `app/page.jsx` nur minimal erweitert wird.
+- Telegram-Link wird nur als zentraler, konfigurierbarer Blueprint-Platzhalter verwendet.
+- Keine Telegram-API, keine Uploads und keine Speicherung ergänzt.
+
+### Umgesetzt
+
+- Neuen Navigationspunkt `Media Center` ergänzt.
+- Neues Media Center als mobile-first UI erstellt:
+  - Suchfeld
+  - Kategorie-Filter
+  - Kartenansicht
+  - Status-Badges: Neu, Aktualisiert, Beliebt, Geplant
+  - Datei- und Update-Platzhalter
+  - Empty State bei fehlenden Links oder leerer Suche
+- Kategorien vorbereitet:
+  - Produktbilder
+  - Produktvideos
+  - Social Media Reels
+  - Instagram Stories
+  - WhatsApp Status
+  - Logos
+  - Flyer
+  - Recruiting
+  - Kampagnen
+  - Black Friday
+  - Sommeraktion
+  - Winteraktion
+  - Weihnachtsaktion
+  - Sonstige Downloads
+- Campaign Center um vorbereiteten Button `Aktionsmaterial öffnen` ergänzt.
+- Growth Center um Bereich `Marketingmaterial & Vorlagen` ergänzt.
+- Admin-UI vorbereitet für:
+  - Telegram-Link je Kategorie
+  - Kategorie aktiv/inaktiv
+  - Materialstatus
+  - letzter Stand
+  - Hinweistext
+- Neue Dokumentation `docs/MEDIA_CENTER_BLUEPRINT.md` erstellt.
+
+### Neue Komponenten / Exporte
+
+- `components/media-center.jsx`
+  - `MediaCenterSection`
+  - `MediaGrowthPanel`
+  - `CampaignMediaActionButton`
+  - `mediaCenterCategories`
+  - `mediaCenterConfig`
+
+### Geänderte Dateien
+
+- `app/page.jsx`
+- `components/media-center.jsx`
+- `components/campaign-center.jsx`
+- `components/growth-center.jsx`
+- `docs/MEDIA_CENTER_BLUEPRINT.md`
+- `CHANGELOG.md`
+
+### Bewusst nicht geändert
+
+- Keine Login-Änderungen.
+- Keine Registrierungsänderungen.
+- Keine Auth-Änderungen.
+- Keine API-Änderungen.
+- Keine Datenbankänderungen.
+- Keine Supabase-Änderungen.
+- Keine R2-/Storage-Änderungen.
+- Keine Infrastrukturänderungen.
+- Keine neuen Libraries.
+- Keine produktiven Schreibvorgänge.
+- Keine Partnerdatenänderungen.
+- Keine Telegram-API.
+- Keine Upload-Funktion.
+- Keine echte Admin-Schreiblogik.
+
+### Tests
+
+- `npm run lint`: bestanden; Hinweis: Babel deoptimiert weiterhin die Ausgabe von `app/page.jsx` wegen Dateigröße, kein Fehler.
+- `npm run build`: bestanden.
+
 ## Partner Earnings Engine & Campaign Architecture Extension - 2026-07-02
 
 ### Analyse

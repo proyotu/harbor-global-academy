@@ -18,6 +18,8 @@ import {
   TrendingUp,
   Users,
 } from 'lucide-react';
+import { createI18nTranslator } from './i18n-extension';
+import { CampaignMediaActionButton } from './media-center';
 import { PartnerEarningsEnginePanel } from './partner-earnings-engine';
 import { Button } from './ui';
 
@@ -226,12 +228,12 @@ function formatPrice(value) {
   return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(Number(value));
 }
 
-function CampaignStatusBadge({ status }) {
+function CampaignStatusBadge({ status, t }) {
   const meta = campaignStatusMeta[status] || campaignStatusMeta.planned;
 
   return (
     <span className={`inline-flex rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-[0.12em] ${meta.className}`}>
-      {meta.label}
+      {t?.(status, meta.label) || meta.label}
     </span>
   );
 }
@@ -246,9 +248,9 @@ function PartnerSavingsBadge({ row }) {
   );
 }
 
-function CustomerCampaignPanel({ campaign, Panel }) {
+function CustomerCampaignPanel({ campaign, Panel, t }) {
   return (
-    <Panel title="Kundenaktion" icon={Tag}>
+    <Panel title={t('campaignCustomer')} icon={Tag}>
       <div className="rounded-[1.5rem] border border-yellow-300/20 bg-yellow-400/10 p-4">
         <p className="text-xs font-black uppercase tracking-[0.16em] text-yellow-200">{campaign.customerCampaign.discountLabel}</p>
         <h3 className="mt-3 break-words text-2xl font-black text-yellow-50">{campaign.customerCampaign.title}</h3>
@@ -268,17 +270,17 @@ function CustomerCampaignPanel({ campaign, Panel }) {
   );
 }
 
-function PartnerCampaignPanel({ campaign, partner, Panel }) {
+function PartnerCampaignPanel({ campaign, partner, Panel, t }) {
   const partnerLevel = normalizePartnerLevel(partner);
   const partnerRow = campaign.partnerCampaign.levelPriceRows.find((row) => row.partnerLevel === partnerLevel)
     || campaign.partnerCampaign.levelPriceRows[0];
   const calculatedPrice = calculateCampaignPrice(partnerRow?.normalPartnerPrice, null);
 
   return (
-    <Panel title="Partneraktion nach Level" icon={Crown}>
+    <Panel title={t('campaignPartnerLevel')} icon={Crown}>
       <div className="grid gap-4 lg:grid-cols-[0.8fr_1.2fr]">
         <div className="rounded-[1.5rem] border border-yellow-300/20 bg-black/25 p-4">
-          <p className="text-xs font-black uppercase tracking-[0.16em] text-yellow-200">Dein Level</p>
+          <p className="text-xs font-black uppercase tracking-[0.16em] text-yellow-200">{t('campaignOwnLevel')}</p>
           <h3 className="mt-3 text-2xl font-black text-yellow-50">{partnerLevel}</h3>
           <p className="mt-2 text-sm leading-relaxed text-white/58">
             Partner sehen später prominent nur den für ihr Level freigegebenen Aktionspreis. Aktuell ist keine maschinenlesbare Preisquelle angebunden.
@@ -287,19 +289,19 @@ function PartnerCampaignPanel({ campaign, partner, Panel }) {
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="rounded-2xl border border-white/10 bg-black/25 p-4">
-            <p className="text-xs text-white/45">Produkt</p>
+            <p className="text-xs text-white/45">{t('product', 'Produkt')}</p>
             <p className="mt-1 font-black text-yellow-50">{campaign.partnerCampaign.affectedProduct}</p>
           </div>
           <div className="rounded-2xl border border-white/10 bg-black/25 p-4">
-            <p className="text-xs text-white/45">Normaler Partnerpreis</p>
+            <p className="text-xs text-white/45">{t('normalPartnerPrice', 'Normaler Partnerpreis')}</p>
             <p className="mt-1 font-black text-yellow-50">{formatPrice(partnerRow?.normalPartnerPrice)}</p>
           </div>
           <div className="rounded-2xl border border-white/10 bg-black/25 p-4">
-            <p className="text-xs text-white/45">Aktions-Partnerpreis</p>
+            <p className="text-xs text-white/45">{t('campaignPartnerPrice', 'Aktions-Partnerpreis')}</p>
             <p className="mt-1 font-black text-yellow-50">{formatPrice(calculatedPrice ?? partnerRow?.campaignPartnerPrice)}</p>
           </div>
           <div className="rounded-2xl border border-white/10 bg-black/25 p-4">
-            <p className="text-xs text-white/45">Gültigkeit</p>
+            <p className="text-xs text-white/45">{t('validity', 'Gültigkeit')}</p>
             <p className="mt-1 font-black text-yellow-50">{formatCampaignRange(campaign)}</p>
           </div>
         </div>
@@ -333,14 +335,14 @@ function LevelPricingTable({ campaign }) {
   );
 }
 
-function ProductPromotionCard({ campaign }) {
+function ProductPromotionCard({ campaign, t }) {
   return (
     <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.045] p-4">
       <div className="flex items-start justify-between gap-3">
         <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-yellow-300/20 bg-yellow-400/10 text-yellow-200">
           <PackageCheck size={19} />
         </span>
-        <CampaignStatusBadge status={campaign.status} />
+        <CampaignStatusBadge status={campaign.status} t={t} />
       </div>
       <h3 className="mt-4 break-words text-lg font-black text-yellow-50">{campaign.name}</h3>
       <p className="mt-2 text-sm leading-relaxed text-white/58">{campaign.description}</p>
@@ -353,7 +355,8 @@ function ProductPromotionCard({ campaign }) {
   );
 }
 
-export function CampaignDashboardBanner({ partner, isAdmin = false, isLeader = false, onNavigate }) {
+export function CampaignDashboardBanner({ partner, isAdmin = false, isLeader = false, onNavigate, t: providedT }) {
+  const t = providedT || createI18nTranslator('de');
   const activeCampaign = getActiveCampaign();
 
   if (!activeCampaign || (!activeCampaign.visibility.includes('Partner') && !isAdmin && !isLeader)) {
@@ -367,9 +370,9 @@ export function CampaignDashboardBanner({ partner, isAdmin = false, isLeader = f
           <div className="mb-3 flex flex-wrap items-center gap-2">
             <span className="inline-flex items-center gap-2 rounded-full border border-yellow-200/25 bg-yellow-400/15 px-3 py-1 text-xs font-black uppercase tracking-[0.14em] text-yellow-100">
               <span className="h-2 w-2 rounded-full bg-yellow-300 shadow-[0_0_16px_rgba(250,204,21,0.75)]" />
-              Aktionsbanner
+              {t('campaignBanner', 'Aktionsbanner')}
             </span>
-            <CampaignStatusBadge status={activeCampaign.status} />
+            <CampaignStatusBadge status={activeCampaign.status} t={t} />
             <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-white/65">{activeCampaign.label}</span>
           </div>
           <h2 className="break-words text-2xl font-black text-yellow-50 sm:text-3xl">{activeCampaign.name}</h2>
@@ -381,14 +384,15 @@ export function CampaignDashboardBanner({ partner, isAdmin = false, isLeader = f
           </div>
         </div>
         <Button type="button" onClick={() => onNavigate?.('campaigns')} className="w-full rounded-2xl bg-yellow-400 px-5 py-3 font-black text-black hover:bg-yellow-300 xl:w-auto">
-          Details ansehen <ChevronRight size={16} />
+          {t('detailsOpen', 'Details ansehen')} <ChevronRight size={16} />
         </Button>
       </div>
     </section>
   );
 }
 
-export function CampaignSuccessHint({ partner, isAdmin = false, isLeader = false, onNavigate }) {
+export function CampaignSuccessHint({ partner, isAdmin = false, isLeader = false, onNavigate, t: providedT }) {
+  const t = providedT || createI18nTranslator('de');
   const activeCampaign = getActiveCampaign();
 
   if (!activeCampaign) {
@@ -401,22 +405,23 @@ export function CampaignSuccessHint({ partner, isAdmin = false, isLeader = false
     <div className="rounded-[1.5rem] border border-yellow-300/20 bg-yellow-400/10 p-4 text-white">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
-          <p className="text-xs font-black uppercase tracking-[0.16em] text-yellow-200">Aktuelle Aktion im Success Center</p>
-          <h3 className="mt-2 break-words text-xl font-black text-yellow-50">Nutze die aktuelle Aktion für Kundengespräche</h3>
+          <p className="text-xs font-black uppercase tracking-[0.16em] text-yellow-200">{t('campaignSuccessKicker', 'Aktuelle Aktion im Success Center')}</p>
+          <h3 className="mt-2 break-words text-xl font-black text-yellow-50">{t('campaignSuccessTitle', 'Nutze die aktuelle Aktion für Kundengespräche')}</h3>
           <p className="mt-2 text-sm leading-relaxed text-white/62">
             Teile die Aktion heute in deiner Story, bereite ein Kundengespräch vor oder kontaktiere 5 passende Kontakte. Dein aktueller Level-Kontext: {partnerLevel}.
           </p>
           {(isLeader || isAdmin) && <p className="mt-2 text-xs text-yellow-100">Leader/Admin-Hinweis: Teamaufgaben und Zielgruppenlogik sind vorbereitet, aber nicht gespeichert.</p>}
         </div>
         <Button type="button" onClick={() => onNavigate?.('campaigns')} className="w-full rounded-2xl bg-yellow-400 px-4 py-3 font-black text-black hover:bg-yellow-300 sm:w-auto">
-          Aktion öffnen
+          {t('campaignOpen', 'Aktion öffnen')}
         </Button>
       </div>
     </div>
   );
 }
 
-export function CampaignGrowthPanel({ Panel }) {
+export function CampaignGrowthPanel({ Panel, t: providedT }) {
+  const t = providedT || createI18nTranslator('de');
   const activeCampaign = getActiveCampaign();
 
   if (!activeCampaign) {
@@ -431,9 +436,9 @@ export function CampaignGrowthPanel({ Panel }) {
   ];
 
   return (
-    <Panel title="Growth Kampagnenmaterial" icon={Flame}>
+    <Panel title={t('campaignGrowthTitle', 'Growth Kampagnenmaterial')} icon={Flame}>
       <p className="mb-4 text-sm leading-relaxed text-white/60">
-        Aktive Kampagnen können später direkt mit Growth-Material, Reels, Story-Vorlagen, WhatsApp-Texten und Einwandbehandlung verbunden werden. Aktuell UI-only.
+        {t('campaignGrowthText', 'Aktive Kampagnen können später direkt mit Growth-Material, Reels, Story-Vorlagen, WhatsApp-Texten und Einwandbehandlung verbunden werden. Aktuell UI-only.')}
       </p>
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         {groups.map((group) => {
@@ -538,6 +543,7 @@ function NotificationPreparationPanel({ Panel }) {
 
 export function CampaignCenterSection({ partner, isAdmin = false, isLeader = false, onNavigate, dependencies }) {
   const { Panel, Stat, NotificationEmptyState } = dependencies;
+  const t = dependencies.t || createI18nTranslator(dependencies.language, dependencies.copy);
   const activeCampaigns = campaignCenterCampaigns.filter((campaign) => campaign.status === 'active');
   const plannedCampaigns = campaignCenterCampaigns.filter((campaign) => campaign.status === 'planned');
   const endedCampaigns = campaignCenterCampaigns.filter((campaign) => campaign.status === 'ended');
@@ -549,16 +555,16 @@ export function CampaignCenterSection({ partner, isAdmin = false, isLeader = fal
       <div className="overflow-hidden rounded-[2rem] border border-yellow-300/20 bg-gradient-to-br from-yellow-400/[0.16] via-white/[0.055] to-black/55 p-5 text-white shadow-2xl shadow-yellow-500/10 sm:p-6 lg:p-8">
         <div className="grid gap-5 xl:grid-cols-[1.15fr_0.85fr] xl:items-end">
           <div className="min-w-0">
-            <p className="text-xs font-black uppercase tracking-[0.22em] text-yellow-200">Campaign Center</p>
-            <h2 className="mt-3 break-words text-3xl font-black text-yellow-50 sm:text-4xl">Aktionen, Kampagnen und Partnerpreise vorbereitet</h2>
+            <p className="text-xs font-black uppercase tracking-[0.22em] text-yellow-200">{t('campaignHeroKicker')}</p>
+            <h2 className="mt-3 break-words text-3xl font-black text-yellow-50 sm:text-4xl">{t('campaignHeroTitle')}</h2>
             <p className="mt-3 max-w-3xl text-sm leading-relaxed text-white/65 sm:text-base">
-              UI-Vorbereitung für zeitlich begrenzte Kundenaktionen, interne Partneraktionen und levelabhängige Aktionspreise. Keine Speicherung, keine echte Preislogik, keine Benachrichtigungen.
+              {t('campaignHeroText')}
             </p>
           </div>
           <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
-            <Stat icon={Flame} label="Aktiv" value={activeCampaigns.length} />
-            <Stat icon={Clock} label="Geplant" value={plannedCampaigns.length} />
-            <Stat icon={Crown} label="Dein Level" value={partnerLevel} />
+            <Stat icon={Flame} label={t('campaignActive')} value={activeCampaigns.length} />
+            <Stat icon={Clock} label={t('campaignPlanned')} value={plannedCampaigns.length} />
+            <Stat icon={Crown} label={t('campaignOwnLevel')} value={partnerLevel} />
           </div>
         </div>
       </div>
@@ -567,16 +573,16 @@ export function CampaignCenterSection({ partner, isAdmin = false, isLeader = fal
         <>
           <section className="grid gap-3 md:grid-cols-3">
             {[...activeCampaigns, ...plannedCampaigns, ...endedCampaigns].map((campaign) => (
-              <ProductPromotionCard key={campaign.id} campaign={campaign} />
+              <ProductPromotionCard key={campaign.id} campaign={campaign} t={t} />
             ))}
           </section>
 
           <section className="grid gap-5 xl:grid-cols-[0.95fr_1.05fr]">
-            <CustomerCampaignPanel campaign={primaryCampaign} Panel={Panel} />
-            <PartnerCampaignPanel campaign={primaryCampaign} partner={partner} Panel={Panel} />
+            <CustomerCampaignPanel campaign={primaryCampaign} Panel={Panel} t={t} />
+            <PartnerCampaignPanel campaign={primaryCampaign} partner={partner} Panel={Panel} t={t} />
           </section>
 
-          <Panel title="Aktionsmaterial & Gesprächsargumente" icon={Megaphone}>
+          <Panel title={t('campaignMaterialTitle')} icon={Megaphone}>
             <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
               {[
                 { title: 'Marketingmaterial', items: primaryCampaign.marketingMaterials },
@@ -596,7 +602,17 @@ export function CampaignCenterSection({ partner, isAdmin = false, isLeader = fal
             </div>
           </Panel>
 
-          <Panel title="Automatische Aktionspreis-Berechnung vorbereitet" icon={TrendingUp}>
+          <div className="rounded-[1.5rem] border border-yellow-300/15 bg-yellow-400/10 p-4">
+            <p className="text-sm font-black text-yellow-50">Telegram-Materialsammlung vorbereitet</p>
+            <p className="mt-2 text-xs leading-relaxed text-yellow-100">
+              Aktionsmaterial wird später über das Media Center beziehungsweise eine externe Telegram-Materialbibliothek bereitgestellt. Keine Dateien werden hier gespeichert.
+            </p>
+            <div className="mt-4">
+              <CampaignMediaActionButton campaign={primaryCampaign} t={t} />
+            </div>
+          </div>
+
+          <Panel title={t('campaignPriceCalculation')} icon={TrendingUp}>
             <div className="grid gap-3 md:grid-cols-3">
               {primaryCampaign.partnerCampaign.calculationTypes.map((type) => (
                 <div key={type} className="rounded-[1.5rem] border border-white/10 bg-black/25 p-4">
@@ -610,13 +626,13 @@ export function CampaignCenterSection({ partner, isAdmin = false, isLeader = fal
             </div>
           </Panel>
 
-          <PartnerEarningsEnginePanel campaign={primaryCampaign} partner={partner} isAdmin={isAdmin} isLeader={isLeader} Panel={Panel} />
+          <PartnerEarningsEnginePanel campaign={primaryCampaign} partner={partner} isAdmin={isAdmin} isLeader={isLeader} Panel={Panel} t={t} />
 
           {isLeader && !isAdmin && <LeaderCampaignPanel campaign={primaryCampaign} Panel={Panel} />}
           {isAdmin && <AdminCampaignManagementPanel campaign={primaryCampaign} Panel={Panel} />}
           <NotificationPreparationPanel Panel={Panel} />
 
-          <Panel title="Spätere Integrationen" icon={ShieldCheck}>
+          <Panel title={t('campaignFutureIntegrations')} icon={ShieldCheck}>
             <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
               {['CMS', 'Notification Engine', 'Success Center', 'Growth Center', 'WhatsApp / n8n / CRM'].map((item) => (
                 <div key={item} className="rounded-2xl border border-white/10 bg-black/25 p-4 text-sm text-white/60">
@@ -632,7 +648,7 @@ export function CampaignCenterSection({ partner, isAdmin = false, isLeader = fal
           </div>
         </>
       ) : (
-        <NotificationEmptyState title="Momentan gibt es keine Kampagnen." text="Sobald Kampagnen im CMS oder in einer freigegebenen Datenstruktur vorhanden sind, erscheinen sie hier." />
+        <NotificationEmptyState title={t('campaignNoCampaignsTitle')} text={t('campaignNoCampaignsText')} />
       )}
     </section>
   );

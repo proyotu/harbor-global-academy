@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { Button } from './ui';
 import { CampaignSuccessHint } from './campaign-center';
+import { createI18nTranslator } from './i18n-extension';
 
 const successStatusMeta = {
   open: { label: 'Offen', className: 'border-yellow-300/25 bg-yellow-400/10 text-yellow-100' },
@@ -109,6 +110,7 @@ export function buildSuccessCenterData({ partner, academyUpdates = [], localOnbo
     isAdminOperationsLeader,
     getAnalyticsPartnerProgress,
     toPartnerCount,
+    t = (key, fallback) => fallback || key,
   } = dependencies;
   const academySummary = getPartnerAcademySummary(partner);
   const onboarding = getOnboardingAssistantSummary(partner, localOnboardingStepIds, academySummary);
@@ -125,7 +127,7 @@ export function buildSuccessCenterData({ partner, academyUpdates = [], localOnbo
     {
       id: 'profile',
       type: 'profile',
-      title: 'Profil vervollständigen',
+      title: t('taskCompleteProfile', 'Profil vervollständigen'),
       text: profileComplete ? 'Profilbasis ist sichtbar vorhanden.' : 'Profilfoto, Telefon und Sichtbarkeit prüfen.',
       status: getSuccessTaskStatus(profileComplete, Boolean(partner?.profileImageUrl || partner?.whatsapp)),
       target: 'profile',
@@ -133,7 +135,7 @@ export function buildSuccessCenterData({ partner, academyUpdates = [], localOnbo
     {
       id: 'video',
       type: 'video',
-      title: `${nextModuleTitle} ansehen`,
+      title: t('taskWatchModule', `${nextModuleTitle} ansehen`).replace('{module}', nextModuleTitle),
       text: academySummary.nextModule ? 'Öffne dein nächstes Academy-Modul und lerne weiter.' : 'Starte mit dem ersten verfügbaren Academy-Inhalt.',
       status: getSuccessTaskStatus(progress >= 100, progress > 0 && progress < 100),
       target: 'modules',
@@ -141,7 +143,7 @@ export function buildSuccessCenterData({ partner, academyUpdates = [], localOnbo
     {
       id: 'quiz',
       type: 'quiz',
-      title: 'Erstes Quiz abschließen',
+      title: t('taskCompleteFirstQuiz', 'Erstes Quiz abschließen'),
       text: quizDone ? 'Quizstatus ist vorhanden.' : 'Quiz bleibt aktuell lokal vorbereitet und wird nicht gespeichert.',
       status: getSuccessTaskStatus(quizDone, false),
       target: 'modules',
@@ -149,7 +151,7 @@ export function buildSuccessCenterData({ partner, academyUpdates = [], localOnbo
     {
       id: 'module',
       type: 'module',
-      title: 'Nächstes Modul beenden',
+      title: t('taskFinishNextModule', 'Nächstes Modul beenden'),
       text: completedModules > 0 ? `${completedModules} Modul(e) bereits abgeschlossen.` : 'Arbeite dein erstes Modul bis zum Ende durch.',
       status: getSuccessTaskStatus(completedModules > 0, progress > 0),
       target: 'modules',
@@ -157,7 +159,7 @@ export function buildSuccessCenterData({ partner, academyUpdates = [], localOnbo
     {
       id: 'calendar',
       type: 'calendar',
-      title: 'Onboarding-Termin buchen',
+      title: t('taskBookOnboarding', 'Onboarding-Termin buchen'),
       text: 'Terminbuchung läuft weiterhin über den bestehenden Kalenderbereich.',
       status: 'open',
       target: 'calendar',
@@ -165,7 +167,7 @@ export function buildSuccessCenterData({ partner, academyUpdates = [], localOnbo
     {
       id: 'leader',
       type: 'leader',
-      title: 'Leader kontaktieren',
+      title: t('taskContactLeader', 'Leader kontaktieren'),
       text: hasTeam ? `Teamkontext vorhanden: ${partner?.teamName || `${formatPartnerCount(partner?.teamPartnerCount)} Partner`}.` : 'Direkte Upline-/Leader-Daten sind noch nicht persistent angebunden.',
       status: getSuccessTaskStatus(hasTeam, false),
       target: 'contact',
@@ -200,7 +202,7 @@ export function buildSuccessCenterData({ partner, academyUpdates = [], localOnbo
     cards: [
       {
         id: 'today',
-        title: 'Heute erledigen',
+        title: t('successToday'),
         value: openTasks.filter((task) => task.status !== 'done').length,
         text: recommendedTask?.title || 'Alle sichtbaren Aufgaben erledigt.',
         icon: Target,
@@ -208,7 +210,7 @@ export function buildSuccessCenterData({ partner, academyUpdates = [], localOnbo
       },
       {
         id: 'next-learning',
-        title: 'Nächster Lernschritt',
+        title: t('successNextLearning'),
         value: progress ? `${progress}%` : 'Start',
         text: nextModuleTitle,
         icon: BookOpen,
@@ -216,7 +218,7 @@ export function buildSuccessCenterData({ partner, academyUpdates = [], localOnbo
       },
       {
         id: 'open-tasks',
-        title: 'Offene Aufgaben',
+        title: t('successOpenTasks'),
         value: openTasks.filter((task) => task.status === 'open').length,
         text: 'Aus vorhandenen Profil- und Academy-Daten abgeleitet.',
         icon: CheckCircle2,
@@ -272,17 +274,17 @@ export function buildSuccessCenterData({ partner, academyUpdates = [], localOnbo
   };
 }
 
-export function SuccessStatusBadge({ status }) {
+export function SuccessStatusBadge({ status, t }) {
   const meta = successStatusMeta[status] || successStatusMeta.open;
 
   return (
     <span className={`inline-flex rounded-full border px-3 py-1 text-[11px] font-black uppercase tracking-[0.1em] ${meta.className}`}>
-      {meta.label}
+      {t?.(status, meta.label) || meta.label}
     </span>
   );
 }
 
-export function SuccessOverviewCard({ card, onNavigate }) {
+export function SuccessOverviewCard({ card, onNavigate, t }) {
   const Icon = card.icon;
 
   return (
@@ -299,12 +301,12 @@ export function SuccessOverviewCard({ card, onNavigate }) {
       </div>
       <h3 className="mt-4 break-words text-lg font-black text-yellow-50">{card.title}</h3>
       <p className="mt-2 break-words text-sm leading-relaxed text-white/58">{card.text}</p>
-      <span className="mt-4 inline-flex items-center gap-1 text-sm font-black text-yellow-200">Öffnen <ChevronRight size={15} /></span>
+      <span className="mt-4 inline-flex items-center gap-1 text-sm font-black text-yellow-200">{t('open')} <ChevronRight size={15} /></span>
     </button>
   );
 }
 
-export function SuccessTaskCard({ task, onNavigate }) {
+export function SuccessTaskCard({ task, onNavigate, t }) {
   const typeMeta = successTaskTypeMeta[task.type] || successTaskTypeMeta.module;
   const Icon = typeMeta.icon;
 
@@ -316,13 +318,13 @@ export function SuccessTaskCard({ task, onNavigate }) {
         </span>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full bg-white/10 px-3 py-1 text-[11px] font-black uppercase tracking-[0.1em] text-white/55">{typeMeta.label}</span>
-            <SuccessStatusBadge status={task.status} />
+            <span className="rounded-full bg-white/10 px-3 py-1 text-[11px] font-black uppercase tracking-[0.1em] text-white/55">{t(`taskType${task.type}`, typeMeta.label)}</span>
+            <SuccessStatusBadge status={task.status} t={t} />
           </div>
           <p className="mt-3 break-words font-black text-yellow-50">{task.title}</p>
           <p className="mt-2 break-words text-sm leading-relaxed text-white/55">{task.text}</p>
           <Button type="button" onClick={() => onNavigate?.(task.target)} className="mt-4 w-full rounded-2xl border border-yellow-300/25 bg-yellow-400/10 px-4 py-3 text-sm font-bold text-yellow-100 hover:bg-yellow-400/20 sm:w-auto">
-            Aufgabe öffnen <ChevronRight size={15} />
+            {t('taskOpen', 'Aufgabe öffnen')} <ChevronRight size={15} />
           </Button>
         </div>
       </div>
@@ -353,22 +355,22 @@ export function SuccessFollowUpPanel({ Panel }) {
   );
 }
 
-export function SuccessRecommendationPanel({ data, onNavigate, Panel, NotificationEmptyState }) {
+export function SuccessRecommendationPanel({ data, onNavigate, Panel, NotificationEmptyState, t }) {
   const recommendation = data.recommendedTask;
 
   return (
-    <Panel title="Persönliche Empfehlung" icon={Star}>
+    <Panel title={t('successRecommendation')} icon={Star}>
       {recommendation ? (
         <div className="rounded-[1.5rem] border border-yellow-300/20 bg-yellow-400/10 p-5">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-yellow-200">Nächster sinnvoller Schritt</p>
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-yellow-200">{t('nextUsefulStep', 'Nächster sinnvoller Schritt')}</p>
           <h3 className="mt-3 text-2xl font-black text-yellow-50">{recommendation.title}</h3>
           <p className="mt-2 text-sm leading-relaxed text-white/62">{recommendation.text}</p>
           <Button type="button" onClick={() => onNavigate?.(recommendation.target)} className="mt-5 w-full rounded-2xl bg-yellow-400 px-4 py-3 font-black text-black hover:bg-yellow-300 sm:w-auto">
-            Jetzt öffnen <ChevronRight size={15} />
+            {t('openNow')} <ChevronRight size={15} />
           </Button>
         </div>
       ) : (
-        <NotificationEmptyState title="Aktuell keine persönliche Empfehlung." text="Sobald Profil-, Lern- oder Terminstatus einen nächsten Schritt ergeben, erscheint er hier." />
+        <NotificationEmptyState title={t('noRecommendationTitle', 'Aktuell keine persönliche Empfehlung.')} text={t('noRecommendationText', 'Sobald Profil-, Lern- oder Terminstatus einen nächsten Schritt ergeben, erscheint er hier.')} />
       )}
     </Panel>
   );
@@ -621,6 +623,7 @@ export function SuccessCenterSection({ partner, academyUpdates = [], localOnboar
     Stat,
     NotificationEmptyState,
   } = dependencies;
+  const t = dependencies.t || createI18nTranslator(dependencies.language, dependencies.copy);
   const data = buildSuccessCenterData({ partner, academyUpdates, localOnboardingStepIds, isAdmin, isLeader, partners, pendingPartners }, dependencies);
 
   return (
@@ -629,39 +632,39 @@ export function SuccessCenterSection({ partner, academyUpdates = [], localOnboar
         <div className="grid gap-5 xl:grid-cols-[1.25fr_0.75fr] xl:items-end">
           <div className="min-w-0">
             <p className="text-xs font-black uppercase tracking-[0.22em] text-yellow-200">Success Center</p>
-            <h2 className="mt-3 break-words text-3xl font-black text-yellow-50 sm:text-4xl">Was muss ich heute tun?</h2>
+            <h2 className="mt-3 break-words text-3xl font-black text-yellow-50 sm:text-4xl">{t('successHeroTitle')}</h2>
             <p className="mt-3 max-w-3xl text-sm leading-relaxed text-white/65 sm:text-base">
-              Dein täglicher Fokus aus vorhandenen Profil-, Academy-, Termin- und Rolleninformationen. Keine Speicherung, kein CRM, kein Versand – nur sichere Orientierung.
+              {t('successHeroText')}
             </p>
           </div>
           <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
-            <Stat icon={Target} label="Offene Aufgaben" value={data.openTasks.filter((task) => task.status !== 'done').length} />
-            <Stat icon={BookOpen} label="Lernfortschritt" value={`${data.progress}%`} />
-            <Stat icon={Trophy} label="Erfolge" value={data.successes.length} />
+            <Stat icon={Target} label={t('successOpenTasks')} value={data.openTasks.filter((task) => task.status !== 'done').length} />
+            <Stat icon={BookOpen} label={t('learningProgress', 'Lernfortschritt')} value={`${data.progress}%`} />
+            <Stat icon={Trophy} label={t('successLatestWins')} value={data.successes.length} />
           </div>
         </div>
       </div>
 
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {data.cards.map((card) => (
-          <SuccessOverviewCard key={card.id} card={card} onNavigate={onNavigate} />
+          <SuccessOverviewCard key={card.id} card={card} onNavigate={onNavigate} t={t} />
         ))}
       </section>
 
-      <CampaignSuccessHint partner={partner} isAdmin={isAdmin} isLeader={isLeader} onNavigate={onNavigate} />
+      <CampaignSuccessHint partner={partner} isAdmin={isAdmin} isLeader={isLeader} onNavigate={onNavigate} t={t} />
 
       <section className="grid gap-5 xl:grid-cols-[1.1fr_0.9fr]">
-        <Panel title="Aufgabenbereich" icon={CheckCircle2}>
+        <Panel title={t('successTasksTitle')} icon={CheckCircle2}>
           <div className="space-y-3">
             {data.openTasks.map((task) => (
-              <SuccessTaskCard key={task.id} task={task} onNavigate={onNavigate} />
+              <SuccessTaskCard key={task.id} task={task} onNavigate={onNavigate} t={t} />
             ))}
           </div>
           <p className="mt-4 text-xs leading-relaxed text-white/45">
             Aufgabenstatus ist UI-only und wird aus vorhandenen Profil- und Academy-Daten abgeleitet. Es wird nichts gespeichert.
           </p>
         </Panel>
-        <SuccessRecommendationPanel data={data} onNavigate={onNavigate} Panel={Panel} NotificationEmptyState={NotificationEmptyState} />
+        <SuccessRecommendationPanel data={data} onNavigate={onNavigate} Panel={Panel} NotificationEmptyState={NotificationEmptyState} t={t} />
       </section>
 
       {!compact && (
