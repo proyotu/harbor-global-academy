@@ -1,5 +1,49 @@
 # Changelog
 
+## Global Excellence Academy Section - 2026-07-05
+
+### Umgesetzt
+
+- Neue Hauptkategorie `Global Excellence` in der Partner-Academy-Navigation ergänzt.
+- Neue mobile-first Placeholder-Sektion für internationale Best-Practice-Inhalte vorbereitet.
+- Acht Unterbereiche als skalierbare Kartenstruktur vorbereitet:
+  - Kommunikation & Rhetorik
+  - Vertrieb & Verkauf
+  - Präsentation & Storytelling
+  - Führung & Leadership
+  - Unternehmertum & Skalierung
+  - Systeme & Prozesse
+  - Mindset & Disziplin
+  - Kundenerlebnis & Service
+- Zentrale Datenstruktur `globalExcellenceCategories` für spätere Module angelegt.
+- Alle sichtbaren neuen UI-Texte über das bestehende `copy`/`t()`-System geführt.
+- DE/EN Translation-Keys ergänzt; weitere Sprachen nutzen den bestehenden Fallback.
+
+### Geänderte Dateien
+
+- `app/page.jsx`
+- `components/global-excellence.jsx`
+- `components/i18n-extension.js`
+- `CHANGELOG.md`
+
+### Bewusst nicht geändert
+
+- Keine Login-Änderungen.
+- Keine Registrierungsänderungen.
+- Keine Auth-Änderungen.
+- Keine API-Änderungen.
+- Keine Datenbankänderungen.
+- Keine Supabase-Änderungen.
+- Keine R2-/Storage-Änderungen.
+- Keine Infrastrukturänderungen.
+- Keine bestehenden Module gelöscht.
+- Keine neuen Libraries.
+
+### Tests
+
+- `npm run lint`: bestanden; Hinweis: Babel deoptimiert weiterhin die Ausgabe von `app/page.jsx` wegen Dateigröße, kein Fehler.
+- `npm run build`: bestanden.
+
 ## UX, Onboarding und Navigation - 2026-07-03
 
 ### Analyse

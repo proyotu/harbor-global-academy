@@ -64,6 +64,7 @@ import {
   growthCenterCategories,
   growthHubSections,
 } from '../components/growth-center';
+import { GlobalExcellenceSection as GlobalExcellenceSectionView } from '../components/global-excellence';
 import { SuccessCenterSection as SuccessCenterSectionView } from '../components/success-center';
 import {
   CampaignCenterSection as CampaignCenterSectionView,
@@ -4413,6 +4414,7 @@ const dashboardNavItems = [
   { id: 'dashboard', labelKey: 'dashboard', icon: ShieldCheck },
   { id: 'success', labelKey: 'successCenter', icon: Target },
   { id: 'growth', labelKey: 'growthCenter', icon: Flame },
+  { id: 'global-excellence', labelKey: 'globalExcellence', icon: Globe2 },
   { id: 'campaigns', labelKey: 'campaignCenter', icon: Flame },
   { id: 'media', labelKey: 'mediaCenter', icon: ImagePlus },
   { id: 'career', labelKey: 'career', icon: Trophy },
@@ -7308,6 +7310,13 @@ export default function HarborGlobalPartnerAcademy() {
               onNavigate={handleDashboardSectionChange}
               isAdmin={isAdmin}
               isLeader={canViewLeaderAnalytics}
+              selectedLanguage={selectedLanguage}
+              copy={copy}
+            />
+          )}
+
+          {dashboardSection === 'global-excellence' && (
+            <GlobalExcellenceSection
               selectedLanguage={selectedLanguage}
               copy={copy}
             />
@@ -13935,6 +13944,22 @@ function GrowthCenterSection({ partner, academyUpdates = [], onNavigate, isAdmin
         getOnboardingAssistantSummary,
         buildNotificationCenterItems,
         formatAdminDate,
+        copy,
+        language: selectedLanguage,
+        t,
+      }}
+    />
+  );
+}
+
+function GlobalExcellenceSection({ selectedLanguage = DEFAULT_LANGUAGE, copy = getCopy(selectedLanguage) }) {
+  const t = createI18nTranslator(selectedLanguage, copy);
+
+  return (
+    <GlobalExcellenceSectionView
+      dependencies={{
+        Panel,
+        Stat,
         copy,
         language: selectedLanguage,
         t,
