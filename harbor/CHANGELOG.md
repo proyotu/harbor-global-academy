@@ -1,5 +1,20 @@
 # Changelog
 
+## P0 Partnerstart: 24 Stunden und 7 Tage - 2026-08-13
+
+### Prepared
+
+- Consolidated the new-partner journey in the existing Start Center with a focused first-24-hours checklist and mobile-first seven-day timeline.
+- Reduced the Dashboard focus to at most three relevant actions and one compact four-part progress snapshot.
+- Reused canonical Academy/video progress and existing profile/team context without adding persistence, database, Auth, Supabase or storage changes.
+- Kept missing welcome and Academy-explanation videos as explicit content TODOs; the registration video was not repurposed.
+- Added complete German and English copy keys, accessibility states and `docs/PARTNER_START_24H_7DAY_BLUEPRINT.md`.
+
+### Explicit non-changes
+
+- No login, registration, navigation, campaign, earnings, media, Global Excellence, quiz, certificate, R2 or active video-mapping changes.
+- No new dependency, migration, production content, partner data field or deployment.
+
 ## First production R2 video migration candidate - 2026-08-13
 
 ### Prepared and verified

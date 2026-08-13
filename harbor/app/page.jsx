@@ -71,6 +71,7 @@ import {
   CampaignDashboardBanner,
 } from '../components/campaign-center';
 import { MediaCenterSection as MediaCenterSectionView } from '../components/media-center';
+import PartnerStartJourney from '../components/partner-start';
 import { createI18nTranslator, getI18nExtensionLabels } from '../components/i18n-extension';
 import AcademyContentAdminOverview from './components/AcademyContentAdminOverview';
 import AcademyDownloadCenter from './components/AcademyDownloadCenter';
@@ -82,6 +83,7 @@ import {
   getAcademyQuizQuestions,
 } from './lib/academy-content';
 import { getAcademyDownloads } from './lib/academy-downloads';
+import { getPartnerStartDay } from './lib/partner-start';
 import {
   ACADEMY_MODULE_CATALOG,
   getAcademyModuleProgress,
@@ -3325,127 +3327,84 @@ function hasPartnerCoreProfileData(partner) {
   return ['firstName', 'lastName', 'email', 'city', 'discountCode'].every((field) => String(partner?.[field] || '').trim());
 }
 
-function hasPartnerSocialContact(partner) {
-  return Boolean(
-    String(partner?.instagramProfile || '').trim()
-    || String(partner?.whatsapp || '').trim()
-    || String(partner?.phone || '').trim()
-    || partner?.notificationPrefs?.whatsappUpdates
-  );
-}
-
-function getOnboardingAssistantSummary(partner, localCompletedStepIds = [], academySummary = getPartnerAcademySummary(partner)) {
+function getOnboardingAssistantSummary(partner, localCompletedStepIds = [], academySummary = getPartnerAcademySummary(partner), t = (key, fallback) => fallback || key) {
   const completedVideos = partner?.academyProgress?.completedVideos || {};
   const locallyCompleted = (stepId) => localCompletedStepIds.includes(stepId);
-  const firstModuleCompleted = academySummary.completedCount > 0 || locallyCompleted('first-module');
-  const quizCompleted = Boolean(partner?.academyProgress?.quizPassed || partner?.academyProgress?.certificationPassed || locallyCompleted('first-quiz'));
+  const firstModuleCompleted = academySummary.overallProgress > 0 || locallyCompleted('first-module');
   const waterTestCompleted = Boolean(
     completedVideos['ppm-bedeutung']
+    || completedVideos['umkehrosmose-erklaerung']
     || completedVideos['tee-test']
     || locallyCompleted('water-test')
   );
-  const presentationCompleted = Boolean(
-    completedVideos.kundenbestellung
-    || completedVideos.partnerregistrierung
-    || locallyCompleted('first-presentation')
-  );
+  const hasLeaderContext = Boolean(String(partner?.teamName || '').trim()) || Number(partner?.teamPartnerCount || 0) > 0;
 
   const steps = [
     {
-      id: 'profile-photo',
-      title: 'Profilfoto hochladen',
-      description: 'Mach dein Partnerprofil persönlich und wiedererkennbar.',
-      icon: Camera,
-      target: 'profile',
-      actionLabel: 'Profil öffnen',
-      completed: Boolean(partner?.profileImageUrl),
-    },
-    {
       id: 'profile-data',
-      title: 'Stammdaten vervollständigen',
-      description: 'Prüfe Name, E-Mail, Stadt und Rabattcode.',
+      title: t('partnerStartProfileTitle'),
+      description: t('partnerStartProfileText'),
       icon: UserCheck,
       target: 'profile',
-      actionLabel: 'Daten prüfen',
+      actionLabel: t('partnerStartCheckProfile'),
       completed: hasPartnerCoreProfileData(partner),
     },
     {
-      id: 'social-contact',
-      title: 'Instagram/WhatsApp hinterlegen',
-      description: 'Optional: Erleichtert Kontakt und Sichtbarkeit im Netzwerk.',
-      icon: Instagram,
-      target: 'profile',
-      actionLabel: 'Optional ergänzen',
-      optional: true,
-      completed: hasPartnerSocialContact(partner),
-    },
-    {
       id: 'welcome-module',
-      title: 'Willkommen-Modul ansehen',
-      description: 'Starte mit Orientierung, Ablauf und ersten Empfehlungen.',
+      title: t('partnerStartWelcomeTitle'),
+      description: t('partnerStartWelcomeText'),
       icon: PlayCircle,
       target: 'start',
-      actionLabel: 'Startbereich öffnen',
+      actionLabel: t('partnerStartOpenStart'),
       manual: true,
       completed: Boolean(completedVideos[STARTCENTER_ONBOARDING_VIDEO_ID] || locallyCompleted('welcome-module')),
     },
     {
+      id: 'academy-tour-video',
+      title: t('partnerStartTourTitle'),
+      description: t('partnerStartTourText'),
+      icon: Video,
+      target: 'start',
+      actionLabel: t('partnerStartOpenStart'),
+      manual: true,
+      completed: locallyCompleted('academy-tour-video'),
+    },
+    {
       id: 'first-module',
-      title: 'Erstes Academy-Modul abschließen',
-      description: 'Arbeite ein Modul vollständig durch und setze die Aufgabe um.',
+      title: t('partnerStartFirstModuleTitle'),
+      description: t('partnerStartFirstModuleText'),
       icon: BookOpen,
       target: 'modules',
-      actionLabel: 'Module öffnen',
+      actionLabel: t('partnerStartOpenModules'),
       manual: true,
       completed: firstModuleCompleted,
     },
     {
-      id: 'first-quiz',
-      title: 'Erstes Quiz bestehen',
-      description: 'Teste dein Verständnis lokal im Quizbereich.',
-      icon: FileQuestion,
-      target: 'modules',
-      actionLabel: 'Quiz öffnen',
-      manual: true,
-      completed: quizCompleted,
-    },
-    {
-      id: 'sponsor-call',
-      title: 'Termin mit dem Sponsor buchen',
-      description: 'Kläre Fragen und plane deinen nächsten konkreten Schritt.',
-      icon: CalendarDays,
-      target: 'calendar',
-      actionLabel: 'Termin buchen',
-      manual: true,
-      completed: locallyCompleted('sponsor-call'),
-    },
-    {
       id: 'water-test',
-      title: 'Ersten Wassertest durchführen',
-      description: 'Bereite PPM- oder Tee-Test vor und dokumentiere deine Erfahrung.',
+      title: t('partnerStartWaterTitle'),
+      description: t('partnerStartWaterText'),
       icon: Globe2,
       target: 'testlab',
-      actionLabel: 'Testlabor öffnen',
-      manual: true,
+      actionLabel: t('partnerStartOpenTestlab'),
       completed: waterTestCompleted,
     },
     {
-      id: 'first-presentation',
-      title: 'Erste Präsentation ansehen',
-      description: 'Nutze die Unterlagen für dein erstes Kundengespräch.',
-      icon: FileText,
-      target: 'resources',
-      actionLabel: 'Unterlagen öffnen',
-      manual: true,
-      completed: presentationCompleted,
+      id: 'leader-known',
+      title: t('partnerStartLeaderTitle'),
+      description: hasLeaderContext ? t('partnerStartLeaderKnownText') : t('partnerStartLeaderUnknownText'),
+      icon: Users,
+      target: hasLeaderContext ? 'profile' : 'contact',
+      actionLabel: hasLeaderContext ? t('partnerStartCheckTeam') : t('partnerStartContactSupport'),
+      optional: !hasLeaderContext,
+      completed: hasLeaderContext,
     },
     {
       id: 'finish-onboarding',
-      title: 'Onboarding abschließen',
-      description: 'Bestätige, dass du bereit für die nächsten Partner-Schritte bist.',
+      title: t('partnerStartFinishTitle'),
+      description: t('partnerStartFinishText'),
       icon: Trophy,
       target: 'dashboard',
-      actionLabel: 'Dashboard öffnen',
+      actionLabel: t('partnerStartOpenDashboard'),
       manual: true,
       completed: locallyCompleted('finish-onboarding'),
     },
@@ -13911,7 +13870,7 @@ function SuccessCenterSection({ partner, academyUpdates = [], localOnboardingSte
         Stat,
         NotificationEmptyState,
         getPartnerAcademySummary,
-        getOnboardingAssistantSummary,
+        getOnboardingAssistantSummary: (item, steps, summary) => getOnboardingAssistantSummary(item, steps, summary, t),
         buildNotificationCenterItems,
         formatPartnerCount,
         formatPoints,
@@ -13941,7 +13900,7 @@ function GrowthCenterSection({ partner, academyUpdates = [], onNavigate, isAdmin
         Stat,
         NotificationEmptyState,
         getPartnerAcademySummary,
-        getOnboardingAssistantSummary,
+        getOnboardingAssistantSummary: (item, steps, summary) => getOnboardingAssistantSummary(item, steps, summary, t),
         buildNotificationCenterItems,
         formatAdminDate,
         copy,
@@ -14021,7 +13980,7 @@ function DashboardHome({
 }) {
   const t = useMemo(() => createI18nTranslator(selectedLanguage, copy), [copy, selectedLanguage]);
   const academyModuleSummary = getPartnerAcademySummary(partner);
-  const onboardingAssistant = getOnboardingAssistantSummary(partner, localOnboardingStepIds, academyModuleSummary);
+  const onboardingAssistant = getOnboardingAssistantSummary(partner, localOnboardingStepIds, academyModuleSummary, t);
   const onboardingProgress = onboardingAssistant.progress || academyModuleSummary.overallProgress || partner?.academyProgress?.onboardingProgressPercent || partner?.academyProgress?.progressPercent || overallProgress;
   const nextStep = onboardingAssistant.nextStep
     ? onboardingAssistant.nextStep.title
@@ -14029,7 +13988,7 @@ function DashboardHome({
       ? `Weiter mit „${academyModuleSummary.nextModule.title}“`
     : getPartnerOnboardingRecommendation(partner);
   const openTaskCount = Math.max(0, onboardingAssistant.requiredCount - onboardingAssistant.completedRequiredCount);
-  const todayTaskCount = Math.min(4, Math.max(1, openTaskCount));
+  const currentStartDay = getPartnerStartDay(partner);
   const dashboardNotifications = buildNotificationCenterItems({
     updates: academyUpdates,
     isAdmin: partner?.role === 'admin',
@@ -14084,14 +14043,12 @@ function DashboardHome({
       target: 'leader',
       visible: isLeader || Number(partner?.teamPartnerCount || 0) > 0,
     },
-  ].filter((task) => task.visible).slice(0, 4);
+  ].filter((task) => task.visible).slice(0, 3);
   const overviewCards = [
-    { id: 'progress', label: copy.academyProgress || t('learningProgress'), value: `${onboardingProgress}%`, icon: BookOpen },
-    { id: 'today', label: t('uxTodayTasksCount'), value: todayTaskCount, icon: Target },
-    { id: 'open', label: t('uxOpenTasksCount'), value: openTaskCount, icon: CheckCircle2 },
-    { id: 'points', label: t('uxPoints'), value: formatPoints(partner?.aquaPoints || 0), icon: Trophy },
-    { id: 'level', label: t('uxLevel'), value: partner?.aquaLevel || t('starterLevel'), icon: Crown },
-    { id: 'certificates', label: t('uxCertificates'), value: partner?.academyProgress?.certificationPassed ? '1' : '0', icon: ShieldCheck },
+    { id: 'onboarding', label: t('partnerStartOnboardingProgress'), value: `${onboardingProgress}%`, icon: UserCheck },
+    { id: 'academy', label: t('partnerStartAcademyProgress'), value: `${academyModuleSummary.overallProgress}%`, icon: BookOpen },
+    { id: 'phase', label: t('partnerStartCurrentPhase'), value: t('partnerStartDayValue').replace('{day}', currentStartDay), icon: Target },
+    { id: 'next', label: t('partnerStartNextStep'), value: nextStep, icon: ChevronRight, compact: true },
   ];
   const compactLinks = [
     { id: 'media', title: t('uxMediaTeaserTitle'), text: t('uxMediaTeaserText'), action: t('uxOpenMedia'), icon: ImagePlus, target: 'media' },
@@ -14118,10 +14075,10 @@ function DashboardHome({
         </CardContent>
       </Card>
 
-      <Panel title={t('uxTodayTasksTitle')} icon={Target}>
-        <p className="mb-4 text-sm leading-relaxed text-white/58">{t('uxTodayTasksText')}</p>
+      <Panel title={t('dailyFocusTitle')} icon={Target}>
+        <p className="mb-4 text-sm leading-relaxed text-white/58">{t('dailyFocusText')}</p>
         {todayTasks.length ? (
-          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          <div className="grid gap-3 md:grid-cols-3">
             {todayTasks.map(({ id, title, text, icon: Icon, target }) => (
               <button
                 key={id}
@@ -14146,12 +14103,12 @@ function DashboardHome({
       </Panel>
 
       <Panel title={t('uxProgressSnapshotTitle')} icon={ShieldCheck}>
-        <p className="mb-4 text-sm leading-relaxed text-white/58">{t('uxProgressSnapshotText')}</p>
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
-          {overviewCards.map(({ id, label, value, icon: Icon }) => (
-            <div key={id} className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
+        <p className="mb-4 text-sm leading-relaxed text-white/58">{t('partnerStartProgressText')}</p>
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-live="polite">
+          {overviewCards.map(({ id, label, value, icon: Icon, compact }) => (
+            <div key={id} className="min-w-0 rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
               <Icon size={18} className="text-yellow-200" />
-              <p className="mt-3 break-words text-2xl font-black text-yellow-50">{value}</p>
+              <p className={`mt-3 break-words font-black text-yellow-50 ${compact ? 'text-sm leading-relaxed' : 'text-2xl'}`}>{value}</p>
               <p className="mt-1 text-xs font-black uppercase tracking-[0.12em] text-white/45">{label}</p>
             </div>
           ))}
@@ -14760,6 +14717,9 @@ function StartCenterSection({
   onNavigate,
 }) {
   const partnerCode = partner?.discountCode || DEFAULT_DISCOUNT_CODE;
+  const t = useMemo(() => createI18nTranslator(selectedLanguage, copy), [copy, selectedLanguage]);
+  const academySummary = getPartnerAcademySummary(partner);
+  const onboardingSummary = getOnboardingAssistantSummary(partner, localOnboardingStepIds, academySummary, t);
 
   return (
     <section className="space-y-5">
@@ -14786,6 +14746,16 @@ function StartCenterSection({
         onMarkStep={onMarkOnboardingStep}
         onNavigate={onNavigate}
       />
+
+      <PartnerStartJourney
+        partner={partner}
+        copy={copy}
+        selectedLanguage={selectedLanguage}
+        academySummary={academySummary}
+        onboardingSummary={onboardingSummary}
+        localCompletedStepIds={localOnboardingStepIds}
+        onNavigate={onNavigate}
+      />
     </section>
   );
 }
@@ -14798,8 +14768,6 @@ function GuidedAcademyOnboarding({ copy, selectedLanguage, localCompletedStepIds
   const markWelcome = () => onMarkStep?.('welcome-module');
   const markTour = () => onMarkStep?.('academy-tour-video');
   const finishOnboarding = () => {
-    onMarkStep?.('welcome-module');
-    onMarkStep?.('academy-tour-video');
     onMarkStep?.('finish-onboarding');
     onNavigate?.('dashboard');
   };
@@ -14844,7 +14812,7 @@ function GuidedAcademyOnboarding({ copy, selectedLanguage, localCompletedStepIds
               />
               {!welcomeDone && (
                 <Button type="button" onClick={markWelcome} className="min-h-12 w-full rounded-2xl bg-yellow-400 px-4 py-3 font-black text-black hover:bg-yellow-300">
-                  <CheckCircle2 size={16} /> {t('uxMarkWatched')}
+                  <CheckCircle2 size={16} /> {t('partnerStartContinueWithoutVideo')}
                 </Button>
               )}
             </div>
@@ -14867,7 +14835,7 @@ function GuidedAcademyOnboarding({ copy, selectedLanguage, localCompletedStepIds
                   {t('uxTourVideoPending')}
                 </div>
                 <Button type="button" onClick={markTour} className="mt-4 min-h-12 w-full rounded-2xl bg-yellow-400 px-4 py-3 font-black text-black hover:bg-yellow-300 sm:w-auto">
-                  <CheckCircle2 size={16} /> {tourDone ? t('done') : t('uxMarkWatched')}
+                  <CheckCircle2 size={16} /> {tourDone ? t('done') : t('partnerStartExploreAcademy')}
                 </Button>
               </div>
             </div>
@@ -14880,7 +14848,7 @@ function GuidedAcademyOnboarding({ copy, selectedLanguage, localCompletedStepIds
             <p className="mt-3 text-xs font-black uppercase tracking-[0.18em] text-green-100">{t('uxStep3')}</p>
             <h4 className="mt-2 break-words text-2xl font-black text-green-50">{t('uxOnboardingCompleteTitle')}</h4>
             <p className="mt-2 text-sm leading-relaxed text-white/62">{t('uxOnboardingCompleteText')}</p>
-            <Button type="button" onClick={finishOnboarding} className="mt-5 min-h-12 w-full rounded-2xl bg-yellow-400 px-4 py-3 font-black text-black hover:bg-yellow-300">
+            <Button type="button" onClick={finishOnboarding} disabled={!welcomeDone || !tourDone} className="mt-5 min-h-12 w-full rounded-2xl bg-yellow-400 px-4 py-3 font-black text-black hover:bg-yellow-300 disabled:cursor-not-allowed disabled:bg-white/10 disabled:text-white/40">
               {finished ? t('uxContinueDashboard') : t('uxFinishOnboarding')} <ChevronRight size={16} />
             </Button>
           </CardContent>
