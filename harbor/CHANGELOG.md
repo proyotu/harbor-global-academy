@@ -1,5 +1,31 @@
 # Changelog
 
+## Academy Video Batch – sichere Integrationsvorbereitung – 2026-08-12
+
+### Verifiziert
+
+- Acht lokale Academy-Video-Kandidaten byte-identisch in den separaten Main-Worktree übernommen.
+- Dateigrößen und SHA-256-Checksummen zwischen Quelle und Ziel vollständig abgeglichen.
+- Alle acht MP4-Dateien technisch geprüft und vollständig decodiert.
+- Bestehende kanonische Lektionen für Umkehrosmose und PPM bestätigt.
+- Zwei PPM-Dateien als visuell und auditiv identischer Inhalt erkannt; eine doppelte PPM-Lektion ausgeschlossen.
+- Für Untertischanlage, Mini Touch und Sparkling Pro keine vorhandenen kanonischen Lektionen gefunden; deshalb keine IDs erfunden und keine Live-Zuordnung erzeugt.
+- Erwartetes H₂-Quellenvideo im übergebenen Dateibestand nicht gefunden und nicht vorgetäuscht.
+
+### Vorbereitet
+
+- Neue Batch-Inventur `docs/ACADEMY_VIDEO_BATCH_INTEGRATION_20260812.md` mit Zuordnungen, Prüfsummen, technischen Metadaten, R2-Zielschlüsseln und Release-Gates ergänzt.
+- Top-Level-Videoquellen unter `academy-videos/*.mp4` vom Git-Tracking ausgeschlossen; bestehende getrackte private Academy-Videos bleiben unberührt.
+
+### Bewusst nicht geändert
+
+- Keine aktive Videozuordnung und keine Academy-Lektion geändert.
+- Keine neuen sichtbaren UI-Texte oder Translation-Keys ergänzt.
+- Keine Binärdatei gestaged oder committed.
+- Kein R2-Upload und keine öffentliche Storage-URL erzeugt.
+- Keine Auth-, Datenbank-, Supabase-, RLS-, Progress-, Quiz-, Zertifikats-, Navigations- oder Infrastrukturänderung.
+- Keine alte Videodatei gelöscht oder überschrieben.
+
 ## Global Excellence Academy Section - 2026-07-05
 
 ### Umgesetzt

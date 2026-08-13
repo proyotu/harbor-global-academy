@@ -5,5 +5,8 @@ out/
 .env.local
 .env.*.local
 
+# Academy source videos are transferred to private object storage, not Git.
+/academy-videos/*.mp4
+
 .vercel
 .env*
