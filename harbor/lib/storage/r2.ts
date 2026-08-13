@@ -218,6 +218,8 @@ async function signedR2Request(method: string, key: string, endpoint: string, op
   body?: Buffer;
   contentType?: string;
   cacheControl?: string;
+  range?: string;
+  acceptedStatuses?: number[];
   metadata?: Record<string, string | number | boolean | null | undefined>;
 } = {}) {
   const config = getR2Config();
@@ -237,6 +239,7 @@ async function signedR2Request(method: string, key: string, endpoint: string, op
     'x-amz-date': timestamp,
     'content-type': options.contentType,
     'cache-control': options.cacheControl,
+    range: options.range,
     ...metadataHeaders,
   });
   const authorization = authorizationHeader({
@@ -257,7 +260,7 @@ async function signedR2Request(method: string, key: string, endpoint: string, op
     body: options.body,
   });
 
-  if (!response.ok) {
+  if (!response.ok && !options.acceptedStatuses?.includes(response.status)) {
     const storageErrorBody = await response.text().catch(() => '');
     throw Object.assign(new Error('Datei konnte nicht im Dateispeicher verarbeitet werden.'), {
       statusCode: response.status,
@@ -277,6 +280,8 @@ async function r2Request(method: string, key: string, options: {
   body?: Buffer;
   contentType?: string;
   cacheControl?: string;
+  range?: string;
+  acceptedStatuses?: number[];
   metadata?: Record<string, string | number | boolean | null | undefined>;
 } = {}) {
   const config = getR2Config();
@@ -330,6 +335,6 @@ export async function deleteR2Object(key: string) {
   await r2Request('DELETE', key);
 }
 
-export async function getR2Object(key: string) {
-  return r2Request('GET', key);
+export async function getR2Object(key: string, options: { range?: string; acceptedStatuses?: number[] } = {}) {
+  return r2Request('GET', key, options);
 }

@@ -2,6 +2,7 @@ import crypto from 'node:crypto';
 
 const PARTNERS_TABLE = 'partners';
 const ASSET_URL_TTL_SECONDS = 10 * 60;
+const ACADEMY_ASSET_ROLES = new Set(['admin', 'partner', 'leader']);
 
 export function json(data, status = 200) {
   return Response.json(data, { status });
@@ -86,7 +87,7 @@ function verifyToken(token) {
     throw Object.assign(new Error('Session ist abgelaufen.'), { statusCode: 401 });
   }
 
-  if (payload.role !== 'admin' && payload.role !== 'partner') {
+  if (!ACADEMY_ASSET_ROLES.has(payload.role)) {
     throw Object.assign(new Error('Zugriff verweigert.'), { statusCode: 403 });
   }
 
@@ -103,6 +104,10 @@ async function requireApprovedPartner(session) {
   const records = await supabaseRequest(`${PARTNERS_TABLE}?id=eq.${encodeURIComponent(id)}&select=id,status&limit=1`, {}, { requireService: true });
   const record = records[0] || null;
 
+  return assertApprovedAcademyPartnerRecord(record);
+}
+
+export function assertApprovedAcademyPartnerRecord(record) {
   if (!record || record.status !== 'approved') {
     throw Object.assign(new Error('Dein Konto ist nicht freigegeben.'), { statusCode: 403 });
   }
@@ -155,7 +160,7 @@ export function verifySignedAssetUrl({ kind, file, expires, subject, role, signa
   if (
     !file
     || !subject
-    || (role !== 'admin' && role !== 'partner')
+    || !ACADEMY_ASSET_ROLES.has(role)
     || !Number.isInteger(expiresNumber)
     || expiresNumber < now
     || expiresNumber > now + ASSET_URL_TTL_SECONDS + 60
@@ -171,4 +176,17 @@ export function verifySignedAssetUrl({ kind, file, expires, subject, role, signa
   if (!signature || signature.length !== expectedSignature.length || !crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature))) {
     throw Object.assign(new Error('Asset-Link ist ungueltig oder abgelaufen.'), { statusCode: 403 });
   }
+
+  return { id: subject, role };
+}
+
+export async function requireApprovedSignedAcademyAssetSession(input) {
+  const session = verifySignedAssetUrl(input);
+
+  if (session.role === 'admin') {
+    return session;
+  }
+
+  await requireApprovedPartner(session);
+  return session;
 }

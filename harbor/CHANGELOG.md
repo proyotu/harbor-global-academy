@@ -1,5 +1,26 @@
 # Changelog
 
+## Private R2 Academy video delivery - 2026-08-13
+
+### Implemented
+
+- Extended the existing protected video route with a canonical `videoId` allowlist and explicit `local` or `r2` source metadata.
+- Kept all 14 active videos on the protected local source; no active asset or lesson was replaced.
+- Added private R2 `GET` and single HTTP Range support to the existing SigV4 helper.
+- Revalidates partner approval on signed stream requests, including Leader sessions represented by approved partners.
+- Returns sanitized `400`, `401`, `403`, `404`, `416`, `500` and `503` errors without exposing storage details.
+- New client playback requests send canonical IDs instead of file names.
+- Added `docs/ACADEMY_R2_VIDEO_DELIVERY.md` and automated security/range tests.
+- Validated the isolated synthetic test asset in Vercel Preview against private Cloudflare R2: upload and object metadata succeeded; full, start, middle, final, open, suffix and invalid ranges returned the expected `200`, `206` and `416` contracts.
+- Verified Preview HTML and client JavaScript contain no R2 variable names, private endpoint, bucket URL or storage key.
+
+### Explicit non-changes
+
+- No R2 object uploaded, deleted or exposed publicly.
+- No reverse-osmosis or PPM mapping activated.
+- No login, registration, database, Supabase, partner-data, progress, quiz, certificate, module, lesson or navigation change.
+- No Vercel project configuration changed.
+
 ## Academy Video Batch – sichere Integrationsvorbereitung – 2026-08-12
 
 ### Verifiziert

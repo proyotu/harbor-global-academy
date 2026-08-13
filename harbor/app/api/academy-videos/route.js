@@ -2,108 +2,74 @@ import { createReadStream } from 'node:fs';
 import { stat } from 'node:fs/promises';
 import path from 'node:path';
 import { Readable } from 'node:stream';
+import { getR2Object } from '../../../lib/storage/r2.ts';
+import { resolveAcademyVideoAsset } from '../../lib/academy-video-assets.js';
+import { assertSingleAcademyVideoRange, parseAcademyVideoRange } from '../../lib/academy-video-range.js';
 import {
   createSignedAssetUrl,
   json,
   requireApprovedAcademyAssetSession,
-  verifySignedAssetUrl,
+  requireApprovedSignedAcademyAssetSession,
 } from '../academy-asset-auth.js';
 
 export const runtime = 'nodejs';
 
-const PRIVATE_VIDEOS = {
-  'wasser-ist-leben.mp4': 'wasser-ist-leben.mp4',
-  'allgemeine-ernaehrungsweise.mp4': 'allgemeine-ernaehrungsweise.mp4',
-  'funktionen-von-wasser-im-koerper.mp4': 'funktionen-von-wasser-im-koerper.mp4',
-  'mineralien.mp4': 'mineralien.mp4',
-  'grenzwerte.mp4': 'grenzwerte.mp4',
-  'umkehrosmose-erklaerung.mp4': 'umkehrosmose-erklaerung.mp4',
-  'ppm-bedeutung.mp4': 'ppm-bedeutung.mp4',
-  'membranfilter-vs-filterkanne.mp4': 'membranfilter-vs-filterkanne.mp4',
-  'tee-test.mp4': 'tee-test.mp4',
-  'basilikum-test.mp4': 'basilikum-test.mp4',
-  'farbtest.mp4': 'farbtest.mp4',
-  'farbtest-erklaerung.mp4': 'farbtest-erklaerung.mp4',
-  'kundenbestellung.mp4': 'kundenbestellung.mp4',
-  'partnerregistrierung.mp4': 'partnerregistrierung.mp4',
-};
-
-const VIDEO_CONTENT_TYPE = 'video/mp4';
-
-function normalizeRequestedFile(value) {
-  return decodeURIComponent(String(value || '')).split('/').pop().trim();
-}
-
-function videoHeaders(extra = {}) {
+function videoHeaders(contentType, extra = {}) {
   return {
     'Accept-Ranges': 'bytes',
-    'Content-Type': VIDEO_CONTENT_TYPE,
-    'Cache-Control': 'private, no-store',
+    'Content-Type': contentType || 'video/mp4',
+    'Cache-Control': 'private, no-store, max-age=0',
     'X-Robots-Tag': 'noindex, nofollow, noarchive',
     'X-Content-Type-Options': 'nosniff',
     ...extra,
   };
 }
 
-function parseRange(rangeHeader, size) {
-  if (!rangeHeader) {
-    return null;
-  }
-
-  const match = /^bytes=(\d*)-(\d*)$/.exec(rangeHeader.trim());
-
-  if (!match) {
-    return null;
-  }
-
-  let start = match[1] ? Number(match[1]) : 0;
-  let end = match[2] ? Number(match[2]) : size - 1;
-
-  if (!match[1] && match[2]) {
-    const suffixLength = Number(match[2]);
-    start = Math.max(size - suffixLength, 0);
-    end = size - 1;
-  }
-
-  if (
-    !Number.isInteger(start)
-    || !Number.isInteger(end)
-    || start < 0
-    || end < start
-    || start >= size
-  ) {
-    throw Object.assign(new Error('Range nicht erfuellbar.'), { statusCode: 416 });
-  }
-
-  return {
-    start,
-    end: Math.min(end, size - 1),
-  };
-}
-
-async function serveVideoFile(request, allowedFile) {
-  const filePath = path.join(process.cwd(), 'academy-videos', 'private', allowedFile);
+async function serveLocalVideo(request, asset) {
+  const filePath = path.join(process.cwd(), 'academy-videos', 'private', asset.storageKey);
   const fileStat = await stat(filePath);
   const size = fileStat.size;
-  const parsedRange = parseRange(request.headers.get('range'), size);
+  const parsedRange = parseAcademyVideoRange(request.headers.get('range'), size);
 
   if (!parsedRange) {
     return new Response(Readable.toWeb(createReadStream(filePath)), {
       status: 200,
-      headers: videoHeaders({
-        'Content-Length': String(size),
-      }),
+      headers: videoHeaders(asset.contentType, { 'Content-Length': String(size) }),
     });
   }
 
   const { start, end } = parsedRange;
-  const chunkSize = end - start + 1;
-
   return new Response(Readable.toWeb(createReadStream(filePath, { start, end })), {
     status: 206,
-    headers: videoHeaders({
-      'Content-Length': String(chunkSize),
+    headers: videoHeaders(asset.contentType, {
+      'Content-Length': String(end - start + 1),
       'Content-Range': `bytes ${start}-${end}/${size}`,
+    }),
+  });
+}
+
+async function serveR2Video(request, asset) {
+  const requestedRange = assertSingleAcademyVideoRange(request.headers.get('range'));
+  const response = await getR2Object(asset.storageKey, {
+    range: requestedRange || undefined,
+    acceptedStatuses: [200, 206],
+  });
+  const contentLength = response.headers.get('content-length');
+  const contentRange = response.headers.get('content-range');
+
+  if (
+    !contentLength
+    || (!requestedRange && response.status !== 200)
+    || (requestedRange && (response.status !== 206 || !contentRange))
+  ) {
+    throw Object.assign(new Error('Video-Storage lieferte eine unvollstaendige Antwort.'), { statusCode: 503 });
+  }
+
+  return new Response(response.body, {
+    status: requestedRange ? 206 : 200,
+    headers: videoHeaders(response.headers.get('content-type') || asset.contentType, {
+      'Content-Length': contentLength,
+      ...(contentRange ? { 'Content-Range': contentRange } : {}),
     }),
   });
 }
@@ -117,30 +83,63 @@ function hasSignedAssetParams(searchParams) {
   );
 }
 
+function requestedAsset(searchParams, request) {
+  const videoId = searchParams.get('videoId');
+  const legacyFile = searchParams.get('file') || request.headers.get('x-harbor-academy-asset-file');
+  const signedOrCanonicalId = videoId || (legacyFile && !legacyFile.endsWith('.mp4') ? legacyFile : '');
+
+  return resolveAcademyVideoAsset({ videoId: signedOrCanonicalId, legacyFile: signedOrCanonicalId ? '' : legacyFile });
+}
+
+function publicErrorStatus(error) {
+  if (Object.hasOwn(error || {}, 'storageErrorBody')) {
+    if (error.statusCode === 404 || error.statusCode === 416) {
+      return error.statusCode;
+    }
+
+    return 503;
+  }
+
+  if (error?.code === 'ENOENT' || error?.statusCode === 404) {
+    return 404;
+  }
+
+  if ([400, 401, 403, 416, 503].includes(error?.statusCode)) {
+    return error.statusCode;
+  }
+
+  return 500;
+}
+
+function publicErrorMessage(status) {
+  if (status === 400) return 'Video-ID ist ungueltig.';
+  if (status === 401) return 'Nicht eingeloggt.';
+  if (status === 403) return 'Zugriff verweigert.';
+  if (status === 404) return 'Video nicht gefunden.';
+  if (status === 503) return 'Video-Storage ist derzeit nicht verfuegbar.';
+  return 'Video konnte nicht geladen werden.';
+}
+
 export async function GET(request) {
+  let asset = null;
+
   try {
     const { searchParams } = new URL(request.url);
-    const requestedFile = normalizeRequestedFile(searchParams.get('file') || request.headers.get('x-harbor-academy-asset-file'));
-    const allowedFile = PRIVATE_VIDEOS[requestedFile];
+    asset = requestedAsset(searchParams, request);
 
-    if (!allowedFile) {
+    if (!asset) {
       return json({ message: 'Video nicht gefunden.' }, 404);
     }
 
     if (searchParams.get('sign') === '1') {
       const session = await requireApprovedAcademyAssetSession(request);
-      return json(createSignedAssetUrl({
-        request,
-        kind: 'academy-video',
-        file: allowedFile,
-        session,
-      }));
+      return json(createSignedAssetUrl({ request, kind: 'academy-video', file: asset.id, session }));
     }
 
     if (hasSignedAssetParams(searchParams)) {
-      verifySignedAssetUrl({
+      await requireApprovedSignedAcademyAssetSession({
         kind: 'academy-video',
-        file: allowedFile,
+        file: asset.id,
         expires: searchParams.get('expires'),
         subject: searchParams.get('subject'),
         role: searchParams.get('role'),
@@ -150,17 +149,19 @@ export async function GET(request) {
       await requireApprovedAcademyAssetSession(request);
     }
 
-    return await serveVideoFile(request, allowedFile);
+    return asset.source === 'r2' ? await serveR2Video(request, asset) : await serveLocalVideo(request, asset);
   } catch (error) {
-    if (error.statusCode === 416) {
+    const status = publicErrorStatus(error);
+
+    if (status === 416) {
       return new Response(null, {
         status: 416,
-        headers: videoHeaders({
-          'Content-Range': 'bytes */*',
+        headers: videoHeaders(asset?.contentType, {
+          'Content-Range': Number.isSafeInteger(error.totalSize) ? `bytes */${error.totalSize}` : 'bytes */*',
         }),
       });
     }
 
-    return json({ message: error.message || 'Video konnte nicht geladen werden.' }, error.statusCode || 500);
+    return json({ message: publicErrorMessage(status) }, status);
   }
 }
