@@ -46,12 +46,18 @@ function request(videoId, options = {}) {
   return new Request(`http://localhost/api/academy-videos?videoId=${encodeURIComponent(videoId)}`, { headers });
 }
 
-test('allowlist maps canonical video IDs to server-owned local keys', () => {
+test('allowlist maps canonical video IDs to server-owned storage keys', () => {
   assert.equal(Object.keys(ACADEMY_VIDEO_ASSETS).length, 15);
   assert.deepEqual(resolveAcademyVideoAsset({ videoId: 'ppm-bedeutung' }), {
     id: 'ppm-bedeutung',
-    source: 'local',
-    storageKey: 'ppm-bedeutung.mp4',
+    source: 'r2',
+    storageKey: 'academy/videos/de/m10/ppm-bedeutung/v2/academy_m10_l02_ppm-bedeutung_de_approved_v2_20260805.mp4',
+    contentType: 'video/mp4',
+  });
+  assert.deepEqual(resolveAcademyVideoAsset({ videoId: 'umkehrosmose-erklaerung' }), {
+    id: 'umkehrosmose-erklaerung',
+    source: 'r2',
+    storageKey: 'academy/videos/de/m03/umkehrosmose-erklaerung/v2/academy_m03_l02_umkehrosmose-erklaerung_de_approved_v2_20260801.mp4',
     contentType: 'video/mp4',
   });
   assert.equal(resolveAcademyVideoAsset({ videoId: 'unbekanntes-video' }), null);
@@ -62,6 +68,10 @@ test('allowlist maps canonical video IDs to server-owned local keys', () => {
     storageKey: 'academy/test/r2-e2e/academy_r2_e2e_test_v1.mp4',
     contentType: 'video/mp4',
   });
+  assert.deepEqual(
+    Object.values(ACADEMY_VIDEO_ASSETS).filter((asset) => asset.source === 'r2').map((asset) => asset.id).sort(),
+    ['academy-r2-e2e-test', 'ppm-bedeutung', 'umkehrosmose-erklaerung'],
+  );
 });
 
 test('single range parser supports beginning, middle, tail, open end and suffix', () => {
@@ -129,8 +139,8 @@ test('signed asset verification accepts the existing Leader session role', () =>
   assert.equal(verified.role, 'leader');
 });
 
-test('admin signed URL streams the existing protected local video', async () => {
-  const signRequest = new Request('http://localhost/api/academy-videos?videoId=ppm-bedeutung&sign=1', {
+test('admin signed URL streams an existing protected local video', async () => {
+  const signRequest = new Request('http://localhost/api/academy-videos?videoId=wasser-ist-leben&sign=1', {
     headers: { Authorization: `Bearer ${adminToken()}` },
   });
   const signResponse = await GET(signRequest);
@@ -162,14 +172,14 @@ test('route rejects manipulated IDs and returns 404 for unknown allowed-format I
 });
 
 test('local route returns 200 and supports byte ranges used by browser seek', async () => {
-  const full = await GET(request('ppm-bedeutung'));
+  const full = await GET(request('wasser-ist-leben'));
   assert.equal(full.status, 200);
   assert.equal(full.headers.get('accept-ranges'), 'bytes');
   assert.equal(full.headers.get('content-type'), 'video/mp4');
   assert.match(full.headers.get('cache-control'), /private/);
   await full.body.cancel();
 
-  const filePath = path.join(process.cwd(), 'academy-videos', 'private', 'ppm-bedeutung.mp4');
+  const filePath = path.join(process.cwd(), 'academy-videos', 'private', 'wasser-ist-leben.mp4');
   const size = (await stat(filePath)).size;
   const cases = [
     ['bytes=0-99', 100, `bytes 0-99/${size}`],
@@ -179,14 +189,14 @@ test('local route returns 200 and supports byte ranges used by browser seek', as
   ];
 
   for (const [range, length, contentRange] of cases) {
-    const response = await GET(request('ppm-bedeutung', { headers: { Range: range } }));
+    const response = await GET(request('wasser-ist-leben', { headers: { Range: range } }));
     assert.equal(response.status, 206);
     assert.equal(Number(response.headers.get('content-length')), length);
     assert.equal(response.headers.get('content-range'), contentRange);
     assert.equal((await response.arrayBuffer()).byteLength, length);
   }
 
-  const invalid = await GET(request('ppm-bedeutung', { headers: { Range: `bytes=${size}-` } }));
+  const invalid = await GET(request('wasser-ist-leben', { headers: { Range: `bytes=${size}-` } }));
   assert.equal(invalid.status, 416);
   assert.equal(invalid.headers.get('content-range'), `bytes */${size}`);
 });

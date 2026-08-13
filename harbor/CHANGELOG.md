@@ -1,5 +1,22 @@
 # Changelog
 
+## First production R2 video migration candidate - 2026-08-13
+
+### Prepared and verified
+
+- Uploaded only the approved reverse-osmosis and PPM/TDS v2 assets to immutable private R2 keys without changing or deleting their local rollback files.
+- Verified each complete R2 object against its local byte size and SHA-256 checksum with `video/mp4` metadata.
+- Switched only `umkehrosmose-erklaerung` and `ppm-bedeutung` to canonical server-owned R2 mappings in the uncommitted release candidate.
+- Validated both mappings in an isolated Vercel Preview: full delivery returned `200`; start, middle, final, open-ended and suffix ranges returned `206`; invalid ranges returned `416`.
+- Revalidated unauthenticated, invalid-session, manipulated-ID and unknown-ID responses as `401`, `401`, `400` and `404`.
+- Kept all modules, lessons, video IDs, navigation, progress, quiz and certificate behavior unchanged.
+
+### Release state
+
+- Production remains on commit `edff77fdaa2ac1d46e7505881236c9a410165d31` with both active mappings still local.
+- No commit, push or Production deployment was performed for this migration candidate.
+- The old local `umkehrosmose-erklaerung.mp4` and `ppm-bedeutung.mp4` files remain available for one-line mapping rollback.
+
 ## Private R2 Academy video delivery - 2026-08-13
 
 ### Implemented

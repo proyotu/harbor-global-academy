@@ -2,7 +2,7 @@
 
 ## Current state and architecture
 
-The Academy delivers 14 active MP4 videos through the protected Next.js route `GET /api/academy-videos`. All active assets remain under `academy-videos/private/`; this sprint does not replace, upload, delete or remap an active video.
+The Academy delivers 14 active MP4 videos through the protected Next.js route `GET /api/academy-videos`. The Prompt 38 release candidate keeps 12 assets under `academy-videos/private/` and maps only reverse osmosis and PPM/TDS to private R2. Production remains unchanged until a separate release approval.
 
 The browser now requests a signed URL with a canonical technical `videoId`. The immutable server allowlist in `app/lib/academy-video-assets.js` maps that ID to a `local` or `r2` source and a server-owned key. The route validates the Academy session, returns a short-lived signed URL containing only the canonical ID, validates it again on every stream request and proxies the selected private source. There is one route and one allowlist, not a parallel R2 architecture.
 
@@ -21,7 +21,7 @@ No role, login, registration, database table or Supabase policy was added.
 
 Each record contains the canonical ID, source (`local` or `r2`), server-owned key and content type. The client cannot choose a bucket, object key or path. Invalid ID syntax returns `400`; an unknown well-formed ID returns `404`. Legacy allowlisted local file names remain accepted server-side for compatibility, but new links use canonical IDs.
 
-All 14 active records remain `source: local`. The isolated technical ID `academy-r2-e2e-test` maps to the private R2 key `academy/test/r2-e2e/academy_r2_e2e_test_v1.mp4`; it is not referenced by the Academy catalog, navigation or visible UI.
+Twelve active records remain `source: local`. The release candidate maps only `umkehrosmose-erklaerung` and `ppm-bedeutung` to immutable private R2 keys. The isolated technical ID `academy-r2-e2e-test` remains mapped to its private regression-test key and is not referenced by the Academy catalog, navigation or visible UI.
 
 The local source reads only allowlisted files below `academy-videos/private/`. It is the explicit fallback strategy. There is no automatic fallback from an R2 record to a same-named local file because that could silently serve the wrong version.
 
@@ -101,18 +101,20 @@ For a later repeat of the isolated technical validation:
 9. Test a vertical MP4 in the existing `object-contain` player.
 10. Remove the temporary mapping or keep it only in an approved test environment.
 
-## Planned first migrations — not active
+## Prompt 38 first migration release candidate
 
-- Reverse osmosis: `academy_m03_l02_umkehrosmose-erklaerung_de_approved_v2_20260801.mp4`
-- PPM: `academy_m10_l02_ppm-bedeutung_de_approved_v2_20260805.mp4`
+- Reverse osmosis (`umkehrosmose-erklaerung`, M03/L02): `academy/videos/de/m03/umkehrosmose-erklaerung/v2/academy_m03_l02_umkehrosmose-erklaerung_de_approved_v2_20260801.mp4`
+- PPM/TDS (`ppm-bedeutung`, M10/L02): `academy/videos/de/m10/ppm-bedeutung/v2/academy_m10_l02_ppm-bedeutung_de_approved_v2_20260805.mp4`
 
-Their planned private keys remain in `ACADEMY_VIDEO_BATCH_INTEGRATION_20260812.md`. Neither file is uploaded, activated or mapped in this sprint.
+Both objects were uploaded privately and verified against their complete local SHA-256 checksums and byte sizes. An isolated Preview using the two R2 mappings returned `200` for each complete object; `206` for start, middle, final, open-ended and suffix ranges; and `416` for invalid ranges. The complete responses matched the approved source hashes. No automatic local fallback was used.
+
+The canonical module, lesson and video IDs remain unchanged, so no duplicate lesson, card or navigation entry is introduced. The previous local files remain retained and unchanged for rollback. Production still serves the local mappings until a separate commit and Production approval.
 
 ## Rollout and rollback
 
-First validate a dedicated test asset. After separate production approval, upload the selected video under a new immutable key, validate access/range/playback, change only its canonical allowlist record to `r2`, deploy and retain the previous local file.
+After separate production approval, commit and deploy only the two verified canonical mapping changes and their documentation/tests. Retain the previous local files and the private R2 objects.
 
-Rollback changes only that record back to its previous `local` key and deploys the last known-good state. R2 objects and local files remain retained; deletion requires separate approval.
+Rollback changes `umkehrosmose-erklaerung` back to `localVideo(..., 'umkehrosmose-erklaerung.mp4')` and `ppm-bedeutung` back to `localVideo(..., 'ppm-bedeutung.mp4')`, then deploys the last known-good state. R2 objects and local files remain retained; deletion requires separate approval.
 
 ## Vercel duplicate project
 
