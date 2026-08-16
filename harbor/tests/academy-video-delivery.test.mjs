@@ -47,7 +47,7 @@ function request(videoId, options = {}) {
 }
 
 test('allowlist maps canonical video IDs to server-owned storage keys', () => {
-  assert.equal(Object.keys(ACADEMY_VIDEO_ASSETS).length, 15);
+  assert.equal(Object.keys(ACADEMY_VIDEO_ASSETS).length, 20);
   assert.deepEqual(resolveAcademyVideoAsset({ videoId: 'ppm-bedeutung' }), {
     id: 'ppm-bedeutung',
     source: 'r2',
@@ -70,8 +70,36 @@ test('allowlist maps canonical video IDs to server-owned storage keys', () => {
   });
   assert.deepEqual(
     Object.values(ACADEMY_VIDEO_ASSETS).filter((asset) => asset.source === 'r2').map((asset) => asset.id).sort(),
-    ['academy-r2-e2e-test', 'ppm-bedeutung', 'umkehrosmose-erklaerung'],
+    [
+      'academy-r2-e2e-test',
+      'mini-touch-aufbau-wassertank',
+      'mini-touch-filterwechsel-wartung',
+      'mini-touch-touchdisplay-wasserausgabe',
+      'ppm-bedeutung',
+      'sparkling-pro-bedienung-systemaufbau',
+      'umkehrosmose-erklaerung',
+      'untertischanlage-bedienung-flush-wartung',
+    ],
   );
+});
+
+test('P1 product mappings use immutable canonical R2 keys', () => {
+  const expected = {
+    'mini-touch-aufbau-wassertank': 'academy/videos/de/m03/mini-touch-aufbau-wassertank/v1/academy_m03_l03_mini-touch-aufbau-wassertank_de_approved_v1_20260805.mp4',
+    'mini-touch-touchdisplay-wasserausgabe': 'academy/videos/de/m03/mini-touch-touchdisplay-wasserausgabe/v1/academy_m03_l04_mini-touch-touchdisplay-wasserausgabe_de_approved_v1_20260805.mp4',
+    'mini-touch-filterwechsel-wartung': 'academy/videos/de/m03/mini-touch-filterwechsel-wartung/v1/academy_m03_l05_mini-touch-filterwechsel-wartung_de_approved_v1_20260805.mp4',
+    'untertischanlage-bedienung-flush-wartung': 'academy/videos/de/m03/untertischanlage-bedienung-flush-wartung/v1/academy_m03_l06_untertischanlage-bedienung-flush-wartung_de_approved_v1_20260805.mp4',
+    'sparkling-pro-bedienung-systemaufbau': 'academy/videos/de/m03/sparkling-pro-bedienung-systemaufbau/v1/academy_m03_l07_sparkling-pro-bedienung-systemaufbau_de_approved_v1_20260812.mp4',
+  };
+
+  for (const [id, storageKey] of Object.entries(expected)) {
+    assert.deepEqual(resolveAcademyVideoAsset({ videoId: id }), {
+      id,
+      source: 'r2',
+      storageKey,
+      contentType: 'video/mp4',
+    });
+  }
 });
 
 test('single range parser supports beginning, middle, tail, open end and suffix', () => {

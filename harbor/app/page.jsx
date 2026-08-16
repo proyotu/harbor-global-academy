@@ -2808,6 +2808,26 @@ const modules = getAcademyContentCatalog('de').map((module) => ({
   lang: ['DE', 'EN', 'RO', 'RU', 'EL', 'TR', 'IT', 'CS', 'ES', 'PL'],
 }));
 
+function getAcademyVideoLessonMetadata(resourceId) {
+  const catalog = getAcademyContentCatalog('de');
+
+  for (const moduleItem of catalog) {
+    const lesson = moduleItem.lessons.find((item) => item.type === 'video' && item.resourceId === resourceId);
+
+    if (lesson) {
+      return {
+        moduleTitle: moduleItem.title,
+        title: lesson.title,
+        description: lesson.description,
+        category: moduleItem.title,
+        learningGoal: lesson.learningGoal,
+      };
+    }
+  }
+
+  return {};
+}
+
 const academyVideos = [
   {
     id: 'wasser-ist-leben',
@@ -2904,6 +2924,66 @@ const academyVideos = [
     learningGoal: 'Partner können Umkehrosmose einfach, verständlich und seriös erklären.',
     mainVideo: true,
     sortOrder: 1,
+  },
+  {
+    id: 'mini-touch-aufbau-wassertank',
+    moduleId: 3,
+    ...getAcademyVideoLessonMetadata('mini-touch-aufbau-wassertank'),
+    uploadDate: '05.08.2026',
+    duration: '00:04:53',
+    src: academyVideoStorageSrc('mini-touch-aufbau-wassertank'),
+    fileName: 'academy_m03_l03_mini-touch-aufbau-wassertank_de_approved_v1_20260805.mp4',
+    progressStatus: 'Nicht angesehen',
+    mainVideo: true,
+    sortOrder: 2,
+  },
+  {
+    id: 'mini-touch-touchdisplay-wasserausgabe',
+    moduleId: 3,
+    ...getAcademyVideoLessonMetadata('mini-touch-touchdisplay-wasserausgabe'),
+    uploadDate: '05.08.2026',
+    duration: '00:04:38',
+    src: academyVideoStorageSrc('mini-touch-touchdisplay-wasserausgabe'),
+    fileName: 'academy_m03_l04_mini-touch-touchdisplay-wasserausgabe_de_approved_v1_20260805.mp4',
+    progressStatus: 'Nicht angesehen',
+    mainVideo: true,
+    sortOrder: 3,
+  },
+  {
+    id: 'mini-touch-filterwechsel-wartung',
+    moduleId: 3,
+    ...getAcademyVideoLessonMetadata('mini-touch-filterwechsel-wartung'),
+    uploadDate: '05.08.2026',
+    duration: '00:03:11',
+    src: academyVideoStorageSrc('mini-touch-filterwechsel-wartung'),
+    fileName: 'academy_m03_l05_mini-touch-filterwechsel-wartung_de_approved_v1_20260805.mp4',
+    progressStatus: 'Nicht angesehen',
+    mainVideo: true,
+    sortOrder: 4,
+  },
+  {
+    id: 'untertischanlage-bedienung-flush-wartung',
+    moduleId: 3,
+    ...getAcademyVideoLessonMetadata('untertischanlage-bedienung-flush-wartung'),
+    uploadDate: '05.08.2026',
+    duration: '00:05:06',
+    src: academyVideoStorageSrc('untertischanlage-bedienung-flush-wartung'),
+    fileName: 'academy_m03_l06_untertischanlage-bedienung-flush-wartung_de_approved_v1_20260805.mp4',
+    progressStatus: 'Nicht angesehen',
+    mainVideo: true,
+    sortOrder: 5,
+  },
+  {
+    id: 'sparkling-pro-bedienung-systemaufbau',
+    moduleId: 3,
+    ...getAcademyVideoLessonMetadata('sparkling-pro-bedienung-systemaufbau'),
+    uploadDate: '12.08.2026',
+    duration: '00:04:08',
+    src: academyVideoStorageSrc('sparkling-pro-bedienung-systemaufbau'),
+    fileName: 'academy_m03_l07_sparkling-pro-bedienung-systemaufbau_de_approved_v1_20260812.mp4',
+    progressStatus: 'Nicht angesehen',
+    mainVideo: true,
+    sortOrder: 6,
   },
   {
     id: 'ppm-bedeutung',

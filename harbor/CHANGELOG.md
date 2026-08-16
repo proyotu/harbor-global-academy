@@ -1,5 +1,20 @@
 # Changelog
 
+## P1 Product Quick Wins - 2026-08-13
+
+### Prepared and Preview-verified
+
+- Added five canonical product lessons to Module 3 for Mini Touch, the undersink system and Sparkling Pro without duplicating product cards or existing lessons.
+- Kept the three Mini Touch topics separate because setup/tank, daily touch operation and filter maintenance have distinct partner learning goals.
+- Uploaded the five approved source videos to immutable private R2 keys and verified byte size, SHA-256, `video/mp4`, full delivery and single-range delivery in the Harbor Preview environment.
+- Added complete German and English lesson copy through the existing localized Academy catalog; other configured languages continue to use the established fallback.
+- Extended the canonical video-delivery allowlist and regression tests while leaving reverse osmosis and PPM/TDS unchanged.
+
+### Explicit non-changes
+
+- No login, registration, Auth, database, Supabase, RLS, progress, quiz, certificate, navigation, partner-start, campaign, earnings, media or Global Excellence changes.
+- No MP4 file, secret, environment file, dependency, public R2 URL, commit, push or Production deployment.
+
 ## P0 Partnerstart: 24 Stunden und 7 Tage - 2026-08-13
 
 ### Prepared
