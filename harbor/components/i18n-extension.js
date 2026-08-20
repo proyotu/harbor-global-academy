@@ -10,6 +10,8 @@ const LANGUAGE_CODE_BY_LABEL_PART = [
 
 export const supportedI18nCodes = ['de', 'en', 'ru', 'ro', 'cs', 'tr', 'el'];
 
+import { salesRecruitingCopy } from './sales-recruiting-copy.js';
+
 const de = {
   successCenter: 'Success Center',
   growthCenter: 'Growth Center',
@@ -413,6 +415,7 @@ const de = {
   'waterKnowledge.ppm.notShows.totalQuality': 'Die gesamte Wasserqualität oder Sicherheit mit nur einer Zahl.',
   'waterKnowledge.ppm.measurementTitle': 'Messwerte sauber vergleichen',
   'waterKnowledge.ppm.measurementText': 'Messgerät, Kalibrierung, Temperatur, Einheit und Messmethode beeinflussen die Einordnung. Bei Abweichungen nicht spekulieren, sondern Messung und Quelle prüfen.',
+  ...salesRecruitingCopy.de,
 };
 
 const en = {
@@ -818,6 +821,7 @@ const en = {
   'waterKnowledge.ppm.notShows.totalQuality': 'Overall water quality or safety expressed by one number.',
   'waterKnowledge.ppm.measurementTitle': 'Compare measurements responsibly',
   'waterKnowledge.ppm.measurementText': 'The meter, calibration, temperature, unit and method affect interpretation. When values differ, check the measurement and source instead of speculating.',
+  ...salesRecruitingCopy.en,
 };
 
 const ru = {

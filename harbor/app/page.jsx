@@ -73,6 +73,7 @@ import {
 import { MediaCenterSection as MediaCenterSectionView } from '../components/media-center';
 import PartnerStartJourney from '../components/partner-start';
 import WaterKnowledgePanel from '../components/water-knowledge';
+import SalesRecruitingFoundationPanel from '../components/sales-recruiting-foundation';
 import { createI18nTranslator, getI18nExtensionLabels } from '../components/i18n-extension';
 import AcademyContentAdminOverview from './components/AcademyContentAdminOverview';
 import AcademyDownloadCenter from './components/AcademyDownloadCenter';
@@ -16028,6 +16029,10 @@ function AcademyLessonContent({
 
   if (lesson.knowledgeId) {
     return <WaterKnowledgePanel knowledgeId={lesson.knowledgeId} t={t} />;
+  }
+
+  if (lesson.foundationId) {
+    return <SalesRecruitingFoundationPanel foundationId={lesson.foundationId} t={t} />;
   }
 
   return <ModuleDetailContent activeModule={activeModule} selectedLanguage={selectedLanguage} />;

@@ -1,5 +1,20 @@
 # Changelog
 
+## P3 Sales & Recruiting Foundation - 2026-08-20
+
+### Prepared
+
+- Extended the existing Module 6 sales system with a seven-lesson path from needs discovery through referral, while retaining the official customer-order video as the canonical ordering source.
+- Extended the existing Module 9 partner-building area with five responsible recruiting lessons and retained the existing partner-registration video and P0 Partner Start as the canonical handoff.
+- Added mobile-first step cards, concise DE/EN examples, UI-only practice tasks and central income-/claim-compliance guidance through the existing `t()` translation system.
+- Kept Product Quick Wins, Water Knowledge, Campaign Center, Career Plan, Earnings Engine and Partner Start as canonical references instead of duplicating their content.
+- Added a source-boundary model, compliance review matrix, implementation blueprint and targeted regression tests; quiz expansion remains `QUIZ_TODO`.
+
+### Explicit non-changes
+
+- No prices, commission values, career levels, income examples, promotion terms, success rates or product claims were invented or hardcoded.
+- No login, registration, Auth, database, Supabase, RLS, R2, video mapping, partner data, progress, certificate, navigation, dependency, commit, push or deployment change.
+
 ## P2 Water Knowledge & Compliance Foundation - 2026-08-16
 
 ### Prepared

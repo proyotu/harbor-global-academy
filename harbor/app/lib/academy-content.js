@@ -5,11 +5,12 @@ const localized = (de, en, ru, ro) => ({
   ro: ro || de,
 });
 
-const contentLesson = (id, title, description = localized('Modulübersicht')) => ({
+const contentLesson = (id, title, description = localized('Modulübersicht'), metadata = {}) => ({
   id,
   type: 'content',
   title,
   description,
+  ...metadata,
 });
 
 const videoLesson = (id, resourceId, title, description, learningGoal) => ({
@@ -418,6 +419,13 @@ export const ACADEMY_CONTENT_CATALOG = [
     lessons: [
       contentLesson('sales-overview', localized('Offizieller Bestellprozess', 'Official ordering process', 'Официальный процесс заказа', 'Procesul oficial de comandă')),
       videoLesson('video-customer-order', 'kundenbestellung', localized('Kundenbestellung', 'Customer order', 'Заказ клиента', 'Comanda clientului'), localized('Schritt für Schritt zur offiziellen Produktseite.', 'Step by step to the official product page.', 'Пошагово к официальной странице продукта.', 'Pas cu pas către pagina oficială a produsului.'), localized('Bestellungen klar von Academy-Funktionen trennen.', 'Separate orders clearly from Academy functions.', 'Чётко отделять заказы от функций Academy.', 'Separă clar comenzile de funcțiile Academiei.')),
+      contentLesson('sales-needs', localized('Bedarf richtig verstehen', 'Understand customer needs'), undefined, { foundationId: 'sales-needs' }),
+      contentLesson('sales-match', localized('Vom Bedarf zur passenden Lösung', 'From needs to the right solution'), undefined, { foundationId: 'sales-match' }),
+      contentLesson('sales-presentation', localized('Produkte einfach und professionell präsentieren', 'Present products simply and professionally'), undefined, { foundationId: 'sales-presentation' }),
+      contentLesson('sales-objections', localized('Einwände respektvoll behandeln', 'Handle objections respectfully'), undefined, { foundationId: 'sales-objections' }),
+      contentLesson('sales-close', localized('Professionell zum Abschluss führen', 'Guide the customer to a professional close'), undefined, { foundationId: 'sales-close' }),
+      contentLesson('sales-follow-up', localized('Nachfassen ohne zu nerven', 'Follow up without becoming intrusive'), undefined, { foundationId: 'sales-follow-up' }),
+      contentLesson('sales-referrals', localized('Empfehlungen professionell erhalten', 'Ask for referrals professionally'), undefined, { foundationId: 'sales-referrals' }),
     ],
   },
   {
@@ -475,6 +483,11 @@ export const ACADEMY_CONTENT_CATALOG = [
     lessons: [
       contentLesson('partner-building-overview', localized('Partneraufbau verstehen', 'Understand partner building', 'Понять построение команды', 'Înțelege dezvoltarea partenerilor')),
       videoLesson('video-partner-registration', 'partnerregistrierung', localized('Partnerregistrierung', 'Partner registration', 'Регистрация партнёра', 'Înregistrarea partenerului'), localized('Der offizielle Registrierungsweg Schritt für Schritt.', 'The official registration path step by step.', 'Официальный путь регистрации шаг за шагом.', 'Procesul oficial de înregistrare pas cu pas.'), localized('Academy-Zugang und Aqua-Global-Registrierung klar trennen.', 'Separate Academy access from Aqua Global registration.', 'Чётко разделять доступ к Academy и регистрацию Aqua Global.', 'Separă clar accesul la Academie de înregistrarea Aqua Global.')),
+      contentLesson('recruiting-foundations', localized('Partnerschaft seriös erklären', 'Explain the partnership responsibly'), undefined, { foundationId: 'recruiting-foundations' }),
+      contentLesson('recruiting-outreach', localized('Menschen professionell ansprechen', 'Approach people professionally'), undefined, { foundationId: 'recruiting-outreach' }),
+      contentLesson('recruiting-business', localized('Die Geschäftsmöglichkeit verständlich erklären', 'Explain the business opportunity clearly'), undefined, { foundationId: 'recruiting-business' }),
+      contentLesson('recruiting-objections', localized('Recruiting-Einwände respektvoll behandeln', 'Handle recruiting objections respectfully'), undefined, { foundationId: 'recruiting-objections' }),
+      contentLesson('recruiting-handoff', localized('Vom Interesse zum Partnerstart', 'From interest to partner onboarding'), undefined, { foundationId: 'recruiting-handoff' }),
     ],
   },
   {
