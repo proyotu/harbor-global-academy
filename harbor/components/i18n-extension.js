@@ -12,6 +12,7 @@ export const supportedI18nCodes = ['de', 'en', 'ru', 'ro', 'cs', 'tr', 'el'];
 
 import { salesRecruitingCopy } from './sales-recruiting-copy.js';
 import { growthContentAiCopy } from './growth-content-ai-copy.js';
+import { partnerExecutionCopy } from './partner-execution-copy.js';
 
 const de = {
   successCenter: 'Success Center',
@@ -418,6 +419,7 @@ const de = {
   'waterKnowledge.ppm.measurementText': 'Messgerät, Kalibrierung, Temperatur, Einheit und Messmethode beeinflussen die Einordnung. Bei Abweichungen nicht spekulieren, sondern Messung und Quelle prüfen.',
   ...salesRecruitingCopy.de,
   ...growthContentAiCopy.de,
+  ...partnerExecutionCopy.de,
 };
 
 const en = {
@@ -825,6 +827,7 @@ const en = {
   'waterKnowledge.ppm.measurementText': 'The meter, calibration, temperature, unit and method affect interpretation. When values differ, check the measurement and source instead of speculating.',
   ...salesRecruitingCopy.en,
   ...growthContentAiCopy.en,
+  ...partnerExecutionCopy.en,
 };
 
 const ru = {

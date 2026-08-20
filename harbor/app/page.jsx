@@ -14076,56 +14076,6 @@ function DashboardHome({
     isAdmin: partner?.role === 'admin',
     isLeader: isLeaderAnalyticsPartner(partner),
   });
-  const todayTasks = [
-    {
-      id: 'module',
-      title: t('uxTaskModule'),
-      text: nextStep || t('uxTaskModuleText'),
-      icon: BookOpen,
-      target: onboardingAssistant.nextStep?.target || 'modules',
-      visible: true,
-    },
-    {
-      id: 'profile',
-      title: t('uxTaskProfile'),
-      text: t('uxTaskProfileText'),
-      icon: UserCheck,
-      target: 'profile',
-      visible: !partner?.profileImageUrl,
-    },
-    {
-      id: 'ppm',
-      title: t('uxTaskPpm'),
-      text: t('uxTaskPpmText'),
-      icon: Search,
-      target: 'testlab',
-      visible: onboardingProgress > 0,
-    },
-    {
-      id: 'story',
-      title: t('uxTaskStory'),
-      text: t('uxTaskStoryText'),
-      icon: Instagram,
-      target: 'media',
-      visible: onboardingProgress >= 20,
-    },
-    {
-      id: 'whatsapp',
-      title: t('uxTaskWhatsApp'),
-      text: t('uxTaskWhatsAppText'),
-      icon: MessageCircle,
-      target: 'resources',
-      visible: onboardingProgress >= 40,
-    },
-    {
-      id: 'team',
-      title: t('uxTaskTeam'),
-      text: t('uxTaskTeamText'),
-      icon: Users,
-      target: 'leader',
-      visible: isLeader || Number(partner?.teamPartnerCount || 0) > 0,
-    },
-  ].filter((task) => task.visible).slice(0, 3);
   const overviewCards = [
     { id: 'onboarding', label: t('partnerStartOnboardingProgress'), value: `${onboardingProgress}%`, icon: UserCheck },
     { id: 'academy', label: t('partnerStartAcademyProgress'), value: `${academyModuleSummary.overallProgress}%`, icon: BookOpen },
@@ -14158,30 +14108,15 @@ function DashboardHome({
       </Card>
 
       <Panel title={t('dailyFocusTitle')} icon={Target}>
-        <p className="mb-4 text-sm leading-relaxed text-white/58">{t('dailyFocusText')}</p>
-        {todayTasks.length ? (
-          <div className="grid gap-3 md:grid-cols-3">
-            {todayTasks.map(({ id, title, text, icon: Icon, target }) => (
-              <button
-                key={id}
-                type="button"
-                onClick={() => onNavigate?.(target)}
-                className="group min-w-0 rounded-[1.5rem] border border-white/10 bg-black/25 p-4 text-left text-white transition hover:-translate-y-0.5 hover:border-yellow-300/30 hover:bg-yellow-400/[0.08]"
-              >
-                <span className="flex h-11 w-11 items-center justify-center rounded-2xl border border-yellow-300/20 bg-yellow-400/10 text-yellow-200 transition group-hover:bg-yellow-400 group-hover:text-black">
-                  <Icon size={20} />
-                </span>
-                <span className="mt-4 block break-words font-black text-yellow-50">{title}</span>
-                <span className="mt-2 block break-words text-sm leading-relaxed text-white/55">{text}</span>
-                <span className="mt-4 inline-flex items-center gap-1 text-sm font-black text-yellow-200">
-                  {t('open')} <ChevronRight size={15} />
-                </span>
-              </button>
-            ))}
+        <div className="flex flex-col gap-4 rounded-[1.5rem] border border-yellow-300/20 bg-yellow-400/[0.07] p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <p className="font-black text-yellow-50">{t('partnerExecution.dashboardTeaserTitle')}</p>
+            <p className="mt-1 max-w-2xl text-sm leading-relaxed text-white/58">{t('partnerExecution.dashboardTeaserText')}</p>
           </div>
-        ) : (
-          <NotificationEmptyState title={t('uxNoUrgentTasks')} text={t('uxReducedDuplicates')} />
-        )}
+          <Button type="button" onClick={() => onNavigate?.('success')} className="min-h-11 w-full shrink-0 rounded-2xl bg-yellow-400 px-4 py-2.5 font-black text-black hover:bg-yellow-300 sm:w-auto">
+            {t('partnerExecution.openSuccessCenter')} <ChevronRight size={16} />
+          </Button>
+        </div>
       </Panel>
 
       <Panel title={t('uxProgressSnapshotTitle')} icon={ShieldCheck}>

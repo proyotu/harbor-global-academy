@@ -1,5 +1,20 @@
 # Changelog
 
+## P5 Partner Execution & Success System - 2026-08-20
+
+### Prepared
+
+- Consolidated daily focus, weekly priorities, practice challenges, the next best action and a compact weekly review in the existing Success Center.
+- Replaced the duplicated Dashboard task list with a single compact Success Center entry point while retaining P0 as the canonical onboarding flow and P1–P4 as canonical learning sources.
+- Added a central, source-bound execution configuration with a maximum of three daily actions, five weekly focus areas and neutral support signals.
+- Limited the Leader view to existing aggregate team data and documented progress-aware notification, automation, CRM and privacy boundaries.
+- Added complete DE/EN copy, mobile-first accessible components, an implementation blueprint, a task matrix and targeted regression tests.
+
+### Explicit non-changes
+
+- No task or progress engine, persistence, database, migration, Auth, Supabase, R2, video mapping, CRM, notification delivery, analytics tracking, dependency or partner data field was added.
+- Practice and weekly status remain visibly UI-only; no completion or support signal is stored or presented as a persisted fact.
+
 ## P4 Growth Content & AI Tools Foundation - 2026-08-20
 
 ### Prepared

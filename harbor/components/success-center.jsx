@@ -21,8 +21,8 @@ import {
   Video,
 } from 'lucide-react';
 import { Button } from './ui';
-import { CampaignSuccessHint } from './campaign-center';
 import { createI18nTranslator } from './i18n-extension';
+import { PartnerExecutionSuccessSystem } from './partner-execution-success';
 
 const successStatusMeta = {
   open: { label: 'Offen', className: 'border-yellow-300/25 bg-yellow-400/10 text-yellow-100' },
@@ -621,7 +621,6 @@ export function SuccessCenterSection({ partner, academyUpdates = [], localOnboar
   const {
     Panel,
     Stat,
-    NotificationEmptyState,
   } = dependencies;
   const t = dependencies.t || createI18nTranslator(dependencies.language, dependencies.copy);
   const data = buildSuccessCenterData({ partner, academyUpdates, localOnboardingStepIds, isAdmin, isLeader, partners, pendingPartners }, dependencies);
@@ -645,44 +644,13 @@ export function SuccessCenterSection({ partner, academyUpdates = [], localOnboar
         </div>
       </div>
 
-      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {data.cards.map((card) => (
-          <SuccessOverviewCard key={card.id} card={card} onNavigate={onNavigate} t={t} />
-        ))}
-      </section>
+      <PartnerExecutionSuccessSystem data={data} partner={partner} isAdmin={isAdmin} isLeader={isLeader} onNavigate={onNavigate} t={t} />
 
-      <CampaignSuccessHint partner={partner} isAdmin={isAdmin} isLeader={isLeader} onNavigate={onNavigate} t={t} />
-
-      <section className="grid gap-5 xl:grid-cols-[1.1fr_0.9fr]">
-        <Panel title={t('successTasksTitle')} icon={CheckCircle2}>
-          <div className="space-y-3">
-            {data.openTasks.map((task) => (
-              <SuccessTaskCard key={task.id} task={task} onNavigate={onNavigate} t={t} />
-            ))}
-          </div>
-          <p className="mt-4 text-xs leading-relaxed text-white/45">
-            Aufgabenstatus ist UI-only und wird aus vorhandenen Profil- und Academy-Daten abgeleitet. Es wird nichts gespeichert.
-          </p>
-        </Panel>
-        <SuccessRecommendationPanel data={data} onNavigate={onNavigate} Panel={Panel} NotificationEmptyState={NotificationEmptyState} t={t} />
-      </section>
-
-      {!compact && (
+      {!compact && isAdmin && (
         <>
           <TaskEngineFoundationPanel data={data} isAdmin={isAdmin} isLeader={isLeader} Panel={Panel} />
           <SuccessFollowUpPanel Panel={Panel} />
-          {isLeader && !isAdmin && <LeaderSuccessPanel data={data} Panel={Panel} />}
-          {isAdmin && <AdminSuccessPanel data={data} Panel={Panel} />}
-          <Panel title="Grundlage für spätere Automationen" icon={Settings}>
-            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
-              {['echte Aufgaben', 'CRM', 'n8n', 'WhatsApp-Automationen', 'KI-Agenten'].map((item) => (
-                <div key={item} className="rounded-2xl border border-white/10 bg-black/25 p-4 text-sm text-white/62">
-                  <p className="font-black text-yellow-50">{item}</p>
-                  <p className="mt-2 text-xs leading-relaxed text-white/45">Vorbereitet, aber nicht implementiert.</p>
-                </div>
-              ))}
-            </div>
-          </Panel>
+          <AdminSuccessPanel data={data} Panel={Panel} />
         </>
       )}
     </section>
