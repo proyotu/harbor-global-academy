@@ -280,7 +280,10 @@ export const ACADEMY_CONTENT_CATALOG = [
       downloads: [],
     },
     lessons: [
-      contentLesson('basics-overview', localized('Lernziele und Wasserwissen', 'Learning goals and water knowledge', 'Цели обучения и знания о воде', 'Obiective și cunoștințe despre apă')),
+      {
+        ...contentLesson('basics-overview', localized('Lernziele und Wasserwissen', 'Learning goals and water knowledge', 'Цели обучения и знания о воде', 'Obiective și cunoștințe despre apă')),
+        knowledgeId: 'water-foundations',
+      },
       videoLesson('video-water-life', 'wasser-ist-leben', localized('Wasser ist Leben', 'Water is life', 'Вода — это жизнь', 'Apa este viață'), localized('Bedeutung von Wasser und Wasserqualität.', 'The importance of water and water quality.', 'Значение воды и её качества.', 'Importanța apei și a calității sale.'), localized('Wasserqualität als Beratungsgrundlage verstehen.', 'Understand water quality as a consultation foundation.', 'Понимать качество воды как основу консультации.', 'Înțelege calitatea apei ca bază a consultanței.')),
       videoLesson('video-nutrition', 'allgemeine-ernaehrungsweise', localized('Allgemeine Ernährungsweise', 'General nutrition', 'Общие принципы питания', 'Alimentație generală'), localized('Wasser im Kontext bewusster Ernährung.', 'Water in the context of conscious nutrition.', 'Вода в контексте осознанного питания.', 'Apa în contextul alimentației conștiente.'), localized('Wasser verständlich in Ernährungsgespräche einordnen.', 'Place water clearly in nutrition conversations.', 'Понятно связывать воду с темой питания.', 'Integrează clar apa în discuțiile despre alimentație.')),
       videoLesson('video-body', 'funktionen-wasser-koerper', localized('Funktionen von Wasser im Körper', 'Functions of water in the body', 'Функции воды в организме', 'Funcțiile apei în organism'), localized('Sachliche Grundlagen ohne überzogene Aussagen.', 'Reliable foundations without exaggerated claims.', 'Надёжные основы без преувеличенных утверждений.', 'Baze corecte fără afirmații exagerate.'), localized('Körperfunktionen seriös und sachlich erklären.', 'Explain bodily functions reliably and factually.', 'Объяснять функции организма корректно и по существу.', 'Explică funcțiile organismului corect și factual.')),
@@ -313,7 +316,10 @@ export const ACADEMY_CONTENT_CATALOG = [
     },
     lessons: [
       contentLesson('products-overview', localized('Produktübersicht', 'Product overview', 'Обзор продуктов', 'Prezentare produse')),
-      videoLesson('video-osmosis', 'umkehrosmose-erklaerung', localized('Umkehrosmose Erklärung', 'Reverse osmosis explained', 'Объяснение обратного осмоса', 'Explicația osmozei inverse'), localized('Membranfiltration als Kerntechnologie.', 'Membrane filtration as the core technology.', 'Мембранная фильтрация как основная технология.', 'Filtrarea cu membrană drept tehnologie principală.'), localized('Umkehrosmose einfach und seriös erklären.', 'Explain reverse osmosis simply and reliably.', 'Просто и корректно объяснять обратный осмос.', 'Explică osmoza inversă simplu și corect.')),
+      {
+        ...videoLesson('video-osmosis', 'umkehrosmose-erklaerung', localized('Umkehrosmose Erklärung', 'Reverse osmosis explained', 'Объяснение обратного осмоса', 'Explicația osmozei inverse'), localized('Membranfiltration als Kerntechnologie.', 'Membrane filtration as the core technology.', 'Мембранная фильтрация как основная технология.', 'Filtrarea cu membrană drept tehnologie principală.'), localized('Umkehrosmose einfach und seriös erklären.', 'Explain reverse osmosis simply and reliably.', 'Просто и корректно объяснять обратный осмос.', 'Explică osmoza inversă simplu și corect.')),
+        knowledgeId: 'reverse-osmosis',
+      },
       videoLesson(
         'video-mini-touch-aufbau-wassertank',
         'mini-touch-aufbau-wassertank',
@@ -487,7 +493,10 @@ export const ACADEMY_CONTENT_CATALOG = [
     },
     lessons: [
       contentLesson('testlab-overview', localized('Testlabor-Übersicht', 'Test lab overview', 'Обзор тестовой лаборатории', 'Prezentarea laboratorului de testare')),
-      videoLesson('video-ppm', 'ppm-bedeutung', localized('PPM Bedeutung', 'PPM meaning', 'Значение PPM', 'Semnificația PPM'), localized('Messwerte korrekt einordnen.', 'Classify measurements correctly.', 'Правильно интерпретировать измерения.', 'Interpretează corect măsurătorile.'), localized('PPM-Werte professionell erklären.', 'Explain PPM values professionally.', 'Профессионально объяснять значения PPM.', 'Explică profesional valorile PPM.')),
+      {
+        ...videoLesson('video-ppm', 'ppm-bedeutung', localized('PPM Bedeutung', 'PPM meaning', 'Значение PPM', 'Semnificația PPM'), localized('Messwerte korrekt einordnen.', 'Classify measurements correctly.', 'Правильно интерпретировать измерения.', 'Interpretează corect măsurătorile.'), localized('PPM-Werte professionell erklären.', 'Explain PPM values professionally.', 'Профессионально объяснять значения PPM.', 'Explică profesional valorile PPM.')),
+        knowledgeId: 'ppm-tds',
+      },
       videoLesson('video-filter-comparison', 'membranfilter-vs-filterkanne', localized('Membranfilter vs. Filterkanne', 'Membrane filter vs. filter jug', 'Мембранный фильтр и фильтр-кувшин', 'Filtru cu membrană vs. cană filtrantă'), localized('Unterschiede sichtbar und sachlich erklären.', 'Explain visible differences factually.', 'Наглядно и корректно объяснять различия.', 'Explică diferențele vizibil și factual.'), localized('Filtertechnologien verständlich vergleichen.', 'Compare filtration technologies clearly.', 'Понятно сравнивать технологии фильтрации.', 'Compară clar tehnologiile de filtrare.')),
       videoLesson('video-tea', 'tee-test', localized('Tee-Test', 'Tea test', 'Тест с чаем', 'Testul cu ceai'), localized('Klarheit und Entfaltung im Vergleich.', 'Compare clarity and development.', 'Сравнение прозрачности и раскрытия.', 'Compară claritatea și dezvoltarea.'), localized('Den Tee-Test ruhig und nachvollziehbar durchführen.', 'Perform the tea test calmly and clearly.', 'Проводить тест с чаем спокойно и понятно.', 'Realizează testul cu ceai calm și clar.')),
       videoLesson('video-basil', 'basilikum-test', localized('Basilikum-Test', 'Basil test', 'Тест с базиликом', 'Testul cu busuioc'), localized('Natürliche Langzeitbeobachtung dokumentieren.', 'Document a natural long-term observation.', 'Документировать естественное долгосрочное наблюдение.', 'Documentează o observație naturală pe termen lung.'), localized('Vergleichstests sauber dokumentieren.', 'Document comparison tests properly.', 'Корректно документировать сравнительные тесты.', 'Documentează corect testele comparative.')),

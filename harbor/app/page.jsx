@@ -72,6 +72,7 @@ import {
 } from '../components/campaign-center';
 import { MediaCenterSection as MediaCenterSectionView } from '../components/media-center';
 import PartnerStartJourney from '../components/partner-start';
+import WaterKnowledgePanel from '../components/water-knowledge';
 import { createI18nTranslator, getI18nExtensionLabels } from '../components/i18n-extension';
 import AcademyContentAdminOverview from './components/AcademyContentAdminOverview';
 import AcademyDownloadCenter from './components/AcademyDownloadCenter';
@@ -15968,6 +15969,8 @@ function AcademyLessonContent({
     return null;
   }
 
+  const t = createI18nTranslator(selectedLanguage, copy);
+
   if (lesson.type === 'video') {
     const sourceVideo = academyVideos.find((video) => video.id === lesson.resourceId);
 
@@ -15988,13 +15991,16 @@ function AcademyLessonContent({
     const videoIndex = Math.max(0, activeModule.resources.videos.indexOf(lesson.resourceId));
 
     return (
-      <AcademyVideoCard
-        video={localizedVideo}
-        moduleLabel={`${copy.module} ${activeModule.id}`}
-        index={videoIndex}
-        selectedLanguage={selectedLanguage}
-        progress={partner?.academyProgress}
-      />
+      <div className="space-y-5">
+        <AcademyVideoCard
+          video={localizedVideo}
+          moduleLabel={`${copy.module} ${activeModule.id}`}
+          index={videoIndex}
+          selectedLanguage={selectedLanguage}
+          progress={partner?.academyProgress}
+        />
+        {lesson.knowledgeId && <WaterKnowledgePanel knowledgeId={lesson.knowledgeId} t={t} />}
+      </div>
     );
   }
 
@@ -16018,6 +16024,10 @@ function AcademyLessonContent({
 
   if (lesson.type === 'quiz') {
     return <QuizCertificationPanel selectedLanguage={selectedLanguage} />;
+  }
+
+  if (lesson.knowledgeId) {
+    return <WaterKnowledgePanel knowledgeId={lesson.knowledgeId} t={t} />;
   }
 
   return <ModuleDetailContent activeModule={activeModule} selectedLanguage={selectedLanguage} />;

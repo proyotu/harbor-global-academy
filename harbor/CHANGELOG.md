@@ -1,5 +1,20 @@
 # Changelog
 
+## P2 Water Knowledge & Compliance Foundation - 2026-08-16
+
+### Prepared
+
+- Extended the existing Module 2 overview, canonical M03/L02 reverse-osmosis lesson and canonical M10/L02 PPM/TDS lesson with concise mobile-first educational panels; no duplicate lesson or navigation path was added.
+- Added clear DE/EN distinctions between H₂O, molecular hydrogen H₂, electrolytes, minerals and electrolysis through the existing `t()` translation system.
+- Added bounded “shows / does not show” guidance for PPM/TDS and principle/limitations guidance for reverse osmosis without adding product-specific performance claims.
+- Classified the Hydrogen Bottle lesson as `OFFICIAL_SOURCE_REQUIRED`; no technology, concentration, cycle, measurement, care or health claim was inferred.
+- Added a reusable central compliance note, a claim-classification model, source review matrix, blueprint and targeted regression tests.
+
+### Explicit non-changes
+
+- No login, registration, Auth, database, Supabase, RLS, partner-data, progress, quiz, certificate, R2, video mapping, Product Quick Wins, navigation or dependency change.
+- No historical health/Hydrogen claim was published, and no PDF, video, secret, commit, push or deployment was created.
+
 ## P1 Product Quick Wins - 2026-08-13
 
 ### Prepared and Preview-verified
