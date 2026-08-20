@@ -1,5 +1,20 @@
 # Changelog
 
+## P4 Growth Content & AI Tools Foundation - 2026-08-20
+
+### Prepared
+
+- Curated the existing Content Factory, brand communication, Production Studio, Media Center and Campaign Center standards into an eight-unit mobile-first partner learning path inside the existing Growth Center.
+- Added eight focused DE/EN prompt templates for ideas, posts, reels, stories, product explanations, FAQs, follow-up and responsible business storytelling with dependency-free clipboard support.
+- Added a central AI safety layer that requires canonical Academy sources and prevents invented prices, promotions, product data, health claims, certificates, commission data and career levels.
+- Kept Module 3, P2, P3, Campaign Center, Media Center and Growth Center as canonical sources instead of duplicating their content.
+- Added UI-only practice tasks, a Content Package Light, source classifications, compliance matrix, implementation blueprint and targeted regression tests.
+
+### Explicit non-changes
+
+- No new Academy module, navigation item, progress calculation, task persistence, automation, publishing integration, backend, Auth, database, Supabase, R2, video mapping or dependency was added.
+- No price, discount, campaign term, product claim, health claim, income claim, fake testimonial, private data, secret or third-party protected work was added.
+
 ## P3 Sales & Recruiting Foundation - 2026-08-20
 
 ### Prepared

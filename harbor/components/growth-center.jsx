@@ -27,6 +27,7 @@ import { Button } from './ui';
 import { CampaignGrowthPanel } from './campaign-center';
 import { createI18nTranslator } from './i18n-extension';
 import { MediaGrowthPanel } from './media-center';
+import GrowthContentAiFoundation from './growth-content-ai-foundation';
 
 export const growthCenterCategories = [
   { id: 'marketing', title: 'Marketing', text: 'Kampagnen, Flyer, Vorlagen und Werbematerial für sichtbare Kundenkommunikation.', icon: Globe2 },
@@ -358,6 +359,8 @@ export function GrowthCenterSection({ partner, academyUpdates = [], onNavigate, 
 
       {hasPreviewAccess ? (
         <>
+          <GrowthContentAiFoundation t={t} />
+
           <Panel title={t('growthDashboard')} icon={Crown}>
             <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
               {dashboardCards.map((card) => (
